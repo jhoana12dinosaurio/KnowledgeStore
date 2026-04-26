@@ -59,6 +59,51 @@ const stats = [
   { value: '17', label: 'Escuelas', icon: '🎓' }
 ];
 
+const enterpriseSolutions = [
+  {
+    icon: '🧩',
+    title: 'Formación a medida',
+    description: 'Programas personalizados para equipos de tecnología, marketing y operaciones, con rutas diseñadas según los objetivos de tu empresa.'
+  },
+  {
+    icon: '📊',
+    title: 'Reportes y analytics',
+    description: 'Seguimiento de progreso, métricas de adopción y resultados de aprendizaje para optimizar el desempeño del equipo.'
+  },
+  {
+    icon: '🤝',
+    title: 'Soporte corporativo',
+    description: 'Account managers dedicados, onboarding para empresas y acceso directo a recursos exclusivos para clientes empresariales.'
+  }
+];
+
+const relatedCompanies = [
+  {
+    name: 'Nexa Talent',
+    industry: 'Consultoría en RRHH',
+    description: 'Mejorando la formación de equipos con proyectos en soft skills y data-driven learning.',
+    employees: '450+'
+  },
+  {
+    name: 'CloudNova',
+    industry: 'Cloud & DevOps',
+    description: 'Capacitación a medida para equipos de infraestructura y automatización de despliegues.',
+    employees: '230+'
+  },
+  {
+    name: 'MercaLab',
+    industry: 'Marketing Digital',
+    description: 'Workshops especializados para campañas, SEO y análisis de rendimiento comercial.',
+    employees: '310+'
+  },
+  {
+    name: 'EduSoft',
+    industry: 'Software y UX',
+    description: 'Rutas de aprendizaje en diseño de productos digitales y experiencia de usuario.',
+    employees: '180+'
+  }
+];
+
 const memberships = [
   {
     id: 'basic',
@@ -148,6 +193,7 @@ export default function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Todos');
   const [showCourses, setShowCourses] = useState(false);
+  const [showEnterprise, setShowEnterprise] = useState(false);
 
   const filteredCourses = useMemo(() => {
     return allCourses.filter(course => {
@@ -171,6 +217,18 @@ export default function App() {
     }
   };
 
+  const resetHome = () => {
+    setShowCourses(false);
+    setShowEnterprise(false);
+    setSearchTerm('');
+    setSelectedCategory('Todos');
+  };
+
+  const openEnterprisePage = () => {
+    setShowEnterprise(true);
+    setShowCourses(true);
+  };
+
   return (
     <div className="ev-bg">
       {/* Animated Background Elements */}
@@ -183,7 +241,7 @@ export default function App() {
 
       {/* Navbar */}
       <nav className="ev-navbar">
-        <div className="ev-logo" onClick={() => { setShowCourses(false); setSearchTerm(''); setSelectedCategory('Todos'); }}>
+        <div className="ev-logo" onClick={resetHome}>
           <div className="ev-logo-icon">
             <svg viewBox="0 0 24 24" fill="currentColor" width="26" height="26">
               <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6A4.997 4.997 0 017 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z"/>
@@ -192,8 +250,8 @@ export default function App() {
           <span className="ev-logo-text">Learnix</span>
         </div>
         <ul className="ev-nav-links">
-          <li onClick={() => setShowCourses(true)}>Cursos</li>
-          <li>Empresas</li>
+          <li onClick={() => { resetHome(); setShowCourses(true); }}>Cursos</li>
+          <li onClick={openEnterprisePage}>Empresas</li>
           <li>Blog</li>
           <li className="ev-nav-live">Live <span className="ev-live-dot"></span></li>
           <li>Precios</li>
@@ -363,6 +421,49 @@ export default function App() {
             </div>
           </section>
         </>
+      ) : showEnterprise ? (
+        <section className="ev-enterprise-page">
+          <div className="ev-section-header">
+            <h2>Empresas que <span>respalda</span> a Learnix</h2>
+            <p>Empresas líderes que ya confían en nuestras soluciones de formación corporativa y en el impulso de sus equipos.</p>
+          </div>
+
+          <div className="ev-enterprise-grid">
+            {enterpriseSolutions.map((item) => (
+              <div className="ev-enterprise-card" key={item.title}>
+                <div className="ev-enterprise-icon">{item.icon}</div>
+                <h3>{item.title}</h3>
+                <p>{item.description}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="ev-related-companies">
+            <h3>Empresas relacionadas</h3>
+            <div className="ev-company-cards">
+              {relatedCompanies.map((company) => (
+                <div className="ev-company-card" key={company.name}>
+                  <div className="ev-company-card-header">
+                    <span className="ev-company-logo">{company.name.charAt(0)}</span>
+                    <div>
+                      <h4>{company.name}</h4>
+                      <span>{company.industry}</span>
+                    </div>
+                  </div>
+                  <p>{company.description}</p>
+                  <span className="ev-company-meta">{company.employees} empleados</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="ev-enterprise-actions">
+            <button className="ev-cta-btn" onClick={resetHome}>Volver al inicio</button>
+            <button className="ev-cta-btn ev-cta-secondary" onClick={() => { setShowCourses(true); setShowEnterprise(false); }}>
+              Ver cursos
+            </button>
+          </div>
+        </section>
       ) : (
         /* Courses Catalog */
         <section className="ev-catalog">

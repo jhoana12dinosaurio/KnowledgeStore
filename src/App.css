@@ -472,6 +472,179 @@ body {
   font-weight: 500;
 }
 
+.ev-enterprise {
+  position: relative;
+  z-index: 1;
+  width: 100vw;
+  max-width: none;
+  margin: 0;
+  margin-left: calc(50% - 50vw);
+  padding: 80px 20px;
+}
+
+.ev-enterprise-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.ev-enterprise-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  padding: 28px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ev-related-companies {
+  margin-top: 48px;
+  max-width: 1180px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.ev-related-companies h3 {
+  color: #fff;
+  font-size: 1.6rem;
+  margin-bottom: 24px;
+}
+
+.ev-company-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.ev-company-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 22px;
+  padding: 24px;
+  transition: all 0.25s ease;
+}
+
+.ev-company-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18);
+  border-color: rgba(0, 212, 170, 0.25);
+}
+
+.ev-company-card-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.ev-company-logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: rgba(0, 212, 170, 0.12);
+  color: #00d4aa;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+}
+
+.ev-company-card h4 {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #fff;
+}
+
+.ev-company-card-header span {
+  display: block;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.9rem;
+}
+
+.ev-company-card p {
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.75;
+  margin: 0 0 16px;
+}
+
+.ev-company-meta {
+  display: inline-flex;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.ev-enterprise-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(0, 212, 170, 0.3);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.18);
+}
+
+.ev-enterprise-icon {
+  width: 54px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 18px;
+  background: rgba(0, 212, 170, 0.12);
+  color: #00d4aa;
+  font-size: 1.6rem;
+  margin-bottom: 20px;
+}
+
+.ev-enterprise-card h3 {
+  margin: 0 0 14px;
+  color: #fff;
+  font-size: 1.2rem;
+}
+
+.ev-enterprise-card p {
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.7;
+  margin: 0;
+}
+
+.ev-enterprise-page {
+  position: relative;
+  z-index: 1;
+  width: 100vw;
+  max-width: none;
+  margin: 0;
+  margin-left: calc(50% - 50vw);
+  padding: 80px 20px 60px;
+}
+
+.ev-enterprise-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 40px;
+  flex-wrap: wrap;
+}
+
+.ev-cta-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 14px 28px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+  background: #00d4aa;
+  color: #0b1120;
+}
+
+.ev-cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 30px rgba(0, 212, 170, 0.25);
+}
+
+.ev-cta-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
 /* ===== SECTION HEADER ===== */
 .ev-section-header {
   text-align: center;
