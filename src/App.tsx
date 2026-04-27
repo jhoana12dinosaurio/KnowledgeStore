@@ -221,6 +221,7 @@ const allCourses = [
 ];
 
 const categories = ['Todos', 'Desarrollo Web', 'Data Science', 'Marketing Digital', 'Inglés', 'Diseño UX/UI', 'DevOps & Cloud', 'Mobile'];
+const levels = ['Todos', 'Principiante', 'Intermedio', 'Avanzado'];
 
 const stats = [
   { value: '6M+', label: 'Estudiantes', icon: '👥' },
@@ -493,6 +494,7 @@ const CourseDetail = ({ course, onBack }: { course: any; onBack: () => void }) =
 export default function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Todos');
+  const [selectedLevel, setSelectedLevel] = useState('Todos');
   const [showCourses, setShowCourses] = useState(false);
   const [showEnterprise, setShowEnterprise] = useState(false);
   const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
@@ -507,9 +509,10 @@ export default function App() {
                            course.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            course.instructor.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesCategory = selectedCategory === 'Todos' || course.category === selectedCategory;
-      return matchesSearch && matchesCategory;
+      const matchesLevel = selectedLevel === 'Todos' || course.level === selectedLevel;
+      return matchesSearch && matchesCategory && matchesLevel;
     });
-  }, [searchTerm, selectedCategory]);
+  }, [searchTerm, selectedCategory, selectedLevel]);
 
   const featuredCourses = allCourses.filter(c => c.featured);
 
@@ -529,6 +532,7 @@ export default function App() {
     setSelectedCourseId(null);
     setSearchTerm('');
     setSelectedCategory('Todos');
+    setSelectedLevel('Todos');
   };
 
   const openEnterprisePage = () => {
@@ -819,6 +823,19 @@ export default function App() {
                     {allCourses.filter(c => c.category === category).length}
                   </span>
                 )}
+              </button>
+            ))}
+          </div>
+
+          <div className="ev-catalog-level-filters">
+            <span className="ev-filter-label">Filtrar por nivel:</span>
+            {levels.map(level => (
+              <button
+                key={level}
+                className={`ev-filter-btn ev-level-filter ${selectedLevel === level ? 'active' : ''}`}
+                onClick={() => setSelectedLevel(level)}
+              >
+                {level}
               </button>
             ))}
           </div>
