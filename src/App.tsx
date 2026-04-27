@@ -4,35 +4,205 @@ import './App.css';
 // Datos de cursos por categoría
 const allCourses = [
   // Desarrollo Web
-  { id: 1, title: 'React desde Cero', category: 'Desarrollo Web', level: 'Principiante', duration: '12h', rating: 4.9, students: 45200, instructor: 'Ana García', image: '⚛️', price: 'Gratis', featured: true },
-  { id: 2, title: 'Node.js Profesional', category: 'Desarrollo Web', level: 'Intermedio', duration: '18h', rating: 4.8, students: 32100, instructor: 'Carlos Ruiz', image: '🟢', price: '$29' },
-  { id: 3, title: 'TypeScript Avanzado', category: 'Desarrollo Web', level: 'Avanzado', duration: '15h', rating: 4.7, students: 18500, instructor: 'María López', image: '📘', price: '$39' },
-  { id: 4, title: 'Next.js Full Stack', category: 'Desarrollo Web', level: 'Intermedio', duration: '20h', rating: 4.9, students: 28900, instructor: 'Pedro Sánchez', image: '▲', price: '$49', featured: true },
+  { 
+    id: 1, 
+    title: 'React desde Cero', 
+    category: 'Desarrollo Web', 
+    level: 'Principiante', 
+    duration: '12h', 
+    rating: 4.9, 
+    students: 45200, 
+    instructor: 'Ana García', 
+    image: '⚛️', 
+    price: 'Gratis', 
+    featured: true,
+    description: 'Domina la biblioteca más popular de JavaScript para crear interfaces de usuario modernas. Aprenderás hooks, componentes funcionales y gestión de estado.',
+    syllabus: [
+      { title: 'Introducción a React', lessons: ['¿Qué es React?', 'Configuración del entorno', 'JSX y Renderizado'] },
+      { title: 'Componentes y Props', lessons: ['Creación de componentes', 'Pasando datos con props', 'Composición de componentes'] },
+      { title: 'Hooks Esenciales', lessons: ['useState para el estado', 'useEffect para efectos secundarios', 'Custom hooks'] }
+    ],
+    requirements: ['Conocimientos básicos de HTML y CSS', 'JavaScript básico (ES6+)'],
+    whatYouWillLearn: ['Crear SPAs interactivas', 'Gestionar estados complejos', 'Consumir APIs externas']
+  },
+  { 
+    id: 2, 
+    title: 'Node.js Profesional', 
+    category: 'Desarrollo Web', 
+    level: 'Intermedio', 
+    duration: '18h', 
+    rating: 4.8, 
+    students: 32100, 
+    instructor: 'Carlos Ruiz', 
+    image: '🟢', 
+    price: '$29',
+    description: 'Construye backends escalables y eficientes. Aprende arquitectura de microservicios, bases de datos y seguridad.',
+    syllabus: [
+      { title: 'Fundamentos de Node.js', lessons: ['Event Loop', 'Módulos nativos', 'File System'] },
+      { title: 'Express y APIs', lessons: ['Routing', 'Middlewares', 'Controladores'] },
+      { title: 'Bases de Datos', lessons: ['MongoDB con Mongoose', 'PostgreSQL con Sequelize'] }
+    ],
+    requirements: ['JavaScript avanzado', 'Conocimientos de terminal'],
+    whatYouWillLearn: ['Crear REST APIs', 'Manejar bases de datos NoSQL y SQL', 'Autenticación con JWT']
+  },
+  { 
+    id: 3, 
+    title: 'TypeScript Avanzado', 
+    category: 'Desarrollo Web', 
+    level: 'Avanzado', 
+    duration: '15h', 
+    rating: 4.7, 
+    students: 18500, 
+    instructor: 'María López', 
+    image: '📘', 
+    price: '$39',
+    description: 'Lleva tu JavaScript al siguiente nivel con tipos fuertes. Aprende genéricos, decoradores y patrones de diseño.',
+    syllabus: [
+      { title: 'Tipado Avanzado', lessons: ['Generics', 'Utility Types', 'Mapped Types'] },
+      { title: 'POO con TypeScript', lessons: ['Clases e Interfaces', 'Modificadores de acceso', 'Abstract classes'] }
+    ],
+    requirements: ['Experiencia con JavaScript moderno'],
+    whatYouWillLearn: ['Escribir código más robusto', 'Mejorar el autocompletado en IDEs', 'Escalar aplicaciones grandes']
+  },
+  { 
+    id: 4, 
+    title: 'Next.js Full Stack', 
+    category: 'Desarrollo Web', 
+    level: 'Intermedio', 
+    duration: '20h', 
+    rating: 4.9, 
+    students: 28900, 
+    instructor: 'Pedro Sánchez', 
+    image: '▲', 
+    price: '$49', 
+    featured: true,
+    description: 'Aprende el framework de React para producción. Domina el renderizado en el servidor (SSR), generación de sitios estáticos (SSG) y las nuevas API de App Router.',
+    syllabus: [
+      { title: 'Fundamentos de Next.js', lessons: ['File-based Routing', 'Data Fetching strategies', 'Server Components'] },
+      { title: 'Optimización y Despliegue', lessons: ['Image Optimization', 'Middleware', 'Despliegue en Vercel'] }
+    ],
+    requirements: ['Conocimientos sólidos de React', 'Entendimiento de APIs REST'],
+    whatYouWillLearn: ['Construir aplicaciones SEO-friendly', 'Dominar el App Router', 'Implementar autenticación avanzada']
+  },
   { id: 5, title: 'CSS Grid y Flexbox', category: 'Desarrollo Web', level: 'Principiante', duration: '8h', rating: 4.6, students: 52300, instructor: 'Laura Martín', image: '🎨', price: 'Gratis' },
   { id: 6, title: 'Vue.js 3 Completo', category: 'Desarrollo Web', level: 'Intermedio', duration: '16h', rating: 4.8, students: 21400, instructor: 'Diego Torres', image: '💚', price: '$35' },
   
   // Data Science
-  { id: 7, title: 'Python para Data Science', category: 'Data Science', level: 'Principiante', duration: '25h', rating: 4.9, students: 67800, instructor: 'Roberto Silva', image: '🐍', price: 'Gratis', featured: true },
+  { 
+    id: 7, 
+    title: 'Python para Data Science', 
+    category: 'Data Science', 
+    level: 'Principiante', 
+    duration: '25h', 
+    rating: 4.9, 
+    students: 67800, 
+    instructor: 'Roberto Silva', 
+    image: '🐍', 
+    price: 'Gratis', 
+    featured: true,
+    description: 'El punto de partida ideal para científicos de datos. Aprende a manipular grandes volúmenes de datos y extraer información valiosa usando Python.',
+    syllabus: [
+      { title: 'Bases de Python', lessons: ['Tipos de datos', 'Estructuras de control', 'Funciones y módulos'] },
+      { title: 'Librerías de Datos', lessons: ['NumPy para cálculos', 'Pandas para manipulación', 'Matplotlib para gráficos'] }
+    ],
+    requirements: ['Ninguno (apto para principiantes)'],
+    whatYouWillLearn: ['Analizar datasets reales', 'Limpiar y preparar datos', 'Visualizar estadísticas']
+  },
   { id: 8, title: 'Machine Learning Práctico', category: 'Data Science', level: 'Avanzado', duration: '30h', rating: 4.8, students: 34200, instructor: 'Elena Vargas', image: '🤖', price: '$59' },
   { id: 9, title: 'SQL para Análisis de Datos', category: 'Data Science', level: 'Principiante', duration: '10h', rating: 4.7, students: 89100, instructor: 'Miguel Ángel', image: '📊', price: 'Gratis' },
   { id: 10, title: 'Visualización con Python', category: 'Data Science', level: 'Intermedio', duration: '14h', rating: 4.6, students: 23400, instructor: 'Sofía Ramos', image: '📈', price: '$29' },
   { id: 11, title: 'Deep Learning con TensorFlow', category: 'Data Science', level: 'Avanzado', duration: '35h', rating: 4.9, students: 19800, instructor: 'Andrés Mejía', image: '🧠', price: '$69', featured: true },
   
   // Marketing Digital
-  { id: 12, title: 'Google Ads Certificación', category: 'Marketing Digital', level: 'Principiante', duration: '12h', rating: 4.8, students: 56700, instructor: 'Patricia Gómez', image: '📢', price: 'Gratis' },
-  { id: 13, title: 'SEO Avanzado 2026', category: 'Marketing Digital', level: 'Avanzado', duration: '18h', rating: 4.9, students: 41200, instructor: 'Fernando Castro', image: '🔍', price: '$45', featured: true },
+  { 
+    id: 12, 
+    title: 'Google Ads Certificación', 
+    category: 'Marketing Digital', 
+    level: 'Principiante', 
+    duration: '12h', 
+    rating: 4.8, 
+    students: 56700, 
+    instructor: 'Patricia Gómez', 
+    image: '📢', 
+    price: 'Gratis',
+    description: 'Prepárate para la certificación oficial de Google. Aprende a crear campañas de búsqueda, display y video que generen resultados reales.',
+    syllabus: [
+      { title: 'Red de Búsqueda', lessons: ['Keywords y concordancia', 'Estructura de anuncios', 'Extensiones'] },
+      { title: 'Optimización', lessons: ['Métricas clave (CTR, CPC)', 'Estrategias de puja', 'Remarketing'] }
+    ],
+    requirements: ['Nociones básicas de marketing'],
+    whatYouWillLearn: ['Configurar campañas desde cero', 'Maximizar el retorno de inversión', 'Análisis de competencia']
+  },
+  { 
+    id: 13, 
+    title: 'SEO Avanzado 2026', 
+    category: 'Marketing Digital', 
+    level: 'Avanzado', 
+    duration: '18h', 
+    rating: 4.9, 
+    students: 41200, 
+    instructor: 'Fernando Castro', 
+    image: '🔍', 
+    price: '$45', 
+    featured: true,
+    description: 'Domina los algoritmos de búsqueda más recientes. Aprende SEO técnico, estrategias de contenido impulsadas por IA y Link Building ético.',
+    syllabus: [
+      { title: 'SEO Técnico', lessons: ['Core Web Vitals', 'Indexabilidad y rastreo', 'Datos estructurados'] },
+      { title: 'Estrategia de Autoridad', lessons: ['Link Building moderno', 'E-E-A-T', 'SEO para voz y búsqueda visual'] }
+    ],
+    requirements: ['Conocimientos previos de SEO básico', 'Acceso a un sitio web para prácticas'],
+    whatYouWillLearn: ['Posicionar en los primeros lugares', 'Auditar sitios web profesionalmente', 'Adaptarse a cambios de algoritmo']
+  },
   { id: 14, title: 'Social Media Marketing', category: 'Marketing Digital', level: 'Principiante', duration: '10h', rating: 4.5, students: 78400, instructor: 'Camila Herrera', image: '📱', price: 'Gratis' },
   { id: 15, title: 'Email Marketing Pro', category: 'Marketing Digital', level: 'Intermedio', duration: '8h', rating: 4.7, students: 29800, instructor: 'Ricardo Peña', image: '✉️', price: '$25' },
   { id: 16, title: 'Analytics y Métricas', category: 'Marketing Digital', level: 'Intermedio', duration: '14h', rating: 4.8, students: 35600, instructor: 'Valentina Cruz', image: '📉', price: '$35' },
   
   // Inglés
-  { id: 17, title: 'Inglés para Developers', category: 'Inglés', level: 'Principiante', duration: '20h', rating: 4.9, students: 92300, instructor: 'John Smith', image: '🇬🇧', price: 'Gratis', featured: true },
+  { 
+    id: 17, 
+    title: 'Inglés para Developers', 
+    category: 'Inglés', 
+    level: 'Principiante', 
+    duration: '20h', 
+    rating: 4.9, 
+    students: 92300, 
+    instructor: 'John Smith', 
+    image: '🇬🇧', 
+    price: 'Gratis', 
+    featured: true,
+    description: 'Mejora tu comunicación técnica en el entorno laboral. Aprende vocabulario clave para reuniones, documentación y entrevistas de trabajo.',
+    syllabus: [
+      { title: 'Gramática Técnica', lessons: ['Tiempos verbales para reportar bugs', 'Condicionales en código', 'Voz pasiva en documentación'] },
+      { title: 'Comunicación en el Equipo', lessons: ['Daily Standups en inglés', 'Escritura de Pull Requests', 'Entrevistas técnicas'] }
+    ],
+    requirements: ['Inglés nivel básico (A2)'],
+    whatYouWillLearn: ['Hablar con confianza en reuniones', 'Escribir correos y documentación profesional', 'Entender tutoriales técnicos avanzados']
+  },
   { id: 18, title: 'Business English', category: 'Inglés', level: 'Intermedio', duration: '25h', rating: 4.8, students: 45600, instructor: 'Sarah Johnson', image: '💼', price: '$39' },
   { id: 19, title: 'English Conversation', category: 'Inglés', level: 'Principiante', duration: '15h', rating: 4.7, students: 67800, instructor: 'Michael Brown', image: '💬', price: 'Gratis' },
   { id: 20, title: 'Technical Writing', category: 'Inglés', level: 'Avanzado', duration: '12h', rating: 4.6, students: 18900, instructor: 'Emily Davis', image: '✍️', price: '$29' },
   
   // Diseño UX/UI
-  { id: 21, title: 'Figma desde Cero', category: 'Diseño UX/UI', level: 'Principiante', duration: '14h', rating: 4.9, students: 73400, instructor: 'Isabella Moreno', image: '🎨', price: 'Gratis', featured: true },
+  { 
+    id: 21, 
+    title: 'Figma desde Cero', 
+    category: 'Diseño UX/UI', 
+    level: 'Principiante', 
+    duration: '14h', 
+    rating: 4.9, 
+    students: 73400, 
+    instructor: 'Isabella Moreno', 
+    image: '🎨', 
+    price: 'Gratis', 
+    featured: true,
+    description: 'La herramienta líder para diseño de interfaces. Desde el dibujo de formas simples hasta prototipos interactivos de alta fidelidad.',
+    syllabus: [
+      { title: 'Interfaz y Herramientas', lessons: ['Capas y Grupos', 'Componentes y Variantes', 'Auto Layout'] },
+      { title: 'Prototipado', lessons: ['Interacciones básicas', 'Smart Animate', 'Variables en prototipos'] }
+    ],
+    requirements: ['Creatividad', 'No se requiere experiencia previa'],
+    whatYouWillLearn: ['Diseñar interfaces web y móviles', 'Crear sistemas de diseño escalables', 'Colaborar con desarrolladores']
+  },
   { id: 22, title: 'UX Research', category: 'Diseño UX/UI', level: 'Intermedio', duration: '16h', rating: 4.8, students: 28900, instructor: 'Nicolás Fuentes', image: '🔬', price: '$45' },
   { id: 23, title: 'Design Systems', category: 'Diseño UX/UI', level: 'Avanzado', duration: '20h', rating: 4.7, students: 19200, instructor: 'Gabriela Ortiz', image: '📐', price: '$55' },
   { id: 24, title: 'Prototipado Avanzado', category: 'Diseño UX/UI', level: 'Intermedio', duration: '12h', rating: 4.8, students: 24500, instructor: 'Sebastián Vega', image: '🖼️', price: '$35' },
@@ -189,11 +359,147 @@ const StarRating = ({ rating }: { rating: number }) => {
   );
 };
 
+// Nuevo Componente: Detalle del Curso
+const CourseDetail = ({ course, onBack }: { course: any; onBack: () => void }) => {
+  return (
+    <section className="ev-course-detail">
+      <div className="ev-detail-header">
+        <button className="ev-back-btn" onClick={onBack}>
+          <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+          </svg>
+          Volver
+        </button>
+      </div>
+
+      <div className="ev-detail-hero">
+        <div className="ev-detail-main">
+          <span className="ev-course-category">{course.category}</span>
+          <h1>{course.title}</h1>
+          <p className="ev-detail-description">{course.description || 'Este curso te proporcionará todas las herramientas necesarias para dominar esta tecnología desde sus bases hasta conceptos avanzados.'}</p>
+          
+          <div className="ev-detail-stats">
+            <div className="ev-detail-stat">
+              <StarRating rating={course.rating} />
+              <span>({course.students.toLocaleString()} estudiantes)</span>
+            </div>
+            <div className="ev-detail-meta-grid">
+              <div className="ev-meta-item">
+                <span className="ev-meta-label">Instructor</span>
+                <span className="ev-meta-value">{course.instructor}</span>
+              </div>
+              <div className="ev-meta-item">
+                <span className="ev-meta-label">Duración</span>
+                <span className="ev-meta-value">{course.duration}</span>
+              </div>
+              <div className="ev-meta-item">
+                <span className="ev-meta-label">Nivel</span>
+                <span className="ev-meta-value">{course.level}</span>
+              </div>
+              <div className="ev-meta-item">
+                <span className="ev-meta-label">Precio</span>
+                <span className="ev-meta-value ev-price-highlight">{course.price}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="ev-detail-actions">
+            <button className="ev-enroll-btn">Inscribirme ahora</button>
+            <button className="ev-wishlist-btn">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div className="ev-detail-card-preview">
+          <div className="ev-preview-image">
+            <span>{course.image}</span>
+          </div>
+          <div className="ev-preview-content">
+            <h3>¿Qué incluye este curso?</h3>
+            <ul>
+              <li><svg viewBox="0 0 24 24" fill="#00d4aa" width="18" height="18"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Acceso de por vida</li>
+              <li><svg viewBox="0 0 24 24" fill="#00d4aa" width="18" height="18"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Certificado de finalización</li>
+              <li><svg viewBox="0 0 24 24" fill="#00d4aa" width="18" height="18"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Recursos descargables</li>
+              <li><svg viewBox="0 0 24 24" fill="#00d4aa" width="18" height="18"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Soporte del instructor</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div className="ev-detail-content">
+        <div className="ev-content-main">
+          {course.whatYouWillLearn && (
+            <div className="ev-detail-section">
+              <h2>Lo que aprenderás</h2>
+              <div className="ev-learning-grid">
+                {course.whatYouWillLearn.map((item: string, i: number) => (
+                  <div key={i} className="ev-learning-item">
+                    <svg viewBox="0 0 24 24" fill="#00d4aa" width="20" height="20">
+                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                    </svg>
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {course.syllabus && (
+            <div className="ev-detail-section">
+              <h2>Contenido del curso</h2>
+              <div className="ev-syllabus">
+                {course.syllabus.map((section: any, i: number) => (
+                  <div key={i} className="ev-syllabus-section">
+                    <div className="ev-syllabus-header">
+                      <span>Módulo {i + 1}: {section.title}</span>
+                    </div>
+                    <ul className="ev-syllabus-lessons">
+                      {section.lessons.map((lesson: string, j: number) => (
+                        <li key={j}>
+                          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                            <path d="M8 5v14l11-7z"/>
+                          </svg>
+                          {lesson}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="ev-content-sidebar">
+          {course.requirements && (
+            <div className="ev-detail-section">
+              <h2>Requisitos</h2>
+              <ul className="ev-requirements-list">
+                {course.requirements.map((req: string, i: number) => (
+                  <li key={i}>{req}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+};
+
 export default function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Todos');
   const [showCourses, setShowCourses] = useState(false);
   const [showEnterprise, setShowEnterprise] = useState(false);
+  const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
+
+  const selectedCourse = useMemo(() => {
+    return allCourses.find(c => c.id === selectedCourseId) || null;
+  }, [selectedCourseId]);
 
   const filteredCourses = useMemo(() => {
     return allCourses.filter(course => {
@@ -220,6 +526,7 @@ export default function App() {
   const resetHome = () => {
     setShowCourses(false);
     setShowEnterprise(false);
+    setSelectedCourseId(null);
     setSearchTerm('');
     setSelectedCategory('Todos');
   };
@@ -262,7 +569,12 @@ export default function App() {
         </div>
       </nav>
 
-      {!showCourses ? (
+      {selectedCourseId && selectedCourse ? (
+        <CourseDetail
+          course={selectedCourse}
+          onBack={() => setSelectedCourseId(null)}
+        />
+      ) : !showCourses ? (
         <>
           {/* Hero Section */}
           <section className="ev-hero">
@@ -323,7 +635,11 @@ export default function App() {
             </div>
             <div className="ev-courses-grid">
               {featuredCourses.slice(0, 6).map((course) => (
-                <div className="ev-course-card" key={course.id}>
+                <div 
+                  className="ev-course-card" 
+                  key={course.id}
+                  onClick={() => { setSelectedCourseId(course.id); setShowCourses(true); }}
+                >
                   <div className="ev-course-image">
                     <span>{course.image}</span>
                     {course.price === 'Gratis' && <span className="ev-course-badge">Gratis</span>}
@@ -509,7 +825,11 @@ export default function App() {
 
           <div className="ev-catalog-grid">
             {filteredCourses.map((course) => (
-              <div className="ev-course-card" key={course.id}>
+              <div 
+                className="ev-course-card" 
+                key={course.id}
+                onClick={() => setSelectedCourseId(course.id)}
+              >
                 <div className="ev-course-image">
                   <span>{course.image}</span>
                   {course.price === 'Gratis' && <span className="ev-course-badge">Gratis</span>}

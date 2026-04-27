@@ -1014,6 +1014,287 @@ body {
   color: rgba(255, 255, 255, 0.35);
 }
 
+/* ===== COURSE DETAIL PAGE ===== */
+.ev-course-detail {
+  padding: 40px 20px 100px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.ev-detail-header {
+  margin-bottom: 32px;
+}
+
+.ev-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.ev-back-btn:hover {
+  color: #00d4aa;
+}
+
+.ev-detail-hero {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 48px;
+  margin-bottom: 64px;
+}
+
+@media (max-width: 1024px) {
+  .ev-detail-hero {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}
+
+.ev-detail-main h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 900;
+  margin: 12px 0 24px;
+  line-height: 1.1;
+}
+
+.ev-detail-description {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.6;
+  margin-bottom: 32px;
+  max-width: 800px;
+}
+
+.ev-detail-stats {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 32px;
+}
+
+.ev-detail-stat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.ev-detail-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.ev-meta-label {
+  display: block;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.ev-meta-value {
+  font-weight: 600;
+  color: #fff;
+}
+
+.ev-price-highlight {
+  color: #00d4aa;
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.ev-detail-actions {
+  display: flex;
+  gap: 16px;
+}
+
+.ev-enroll-btn {
+  flex: 1;
+  background: linear-gradient(135deg, #00d4aa 0%, #00a896 100%);
+  color: #000;
+  border: none;
+  border-radius: 12px;
+  padding: 16px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ev-enroll-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 212, 170, 0.3);
+}
+
+.ev-wishlist-btn {
+  width: 54px;
+  height: 54px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.ev-wishlist-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.ev-detail-card-preview {
+  background: #151515;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  overflow: hidden;
+  height: fit-content;
+  position: sticky;
+  top: 100px;
+}
+
+.ev-preview-image {
+  height: 200px;
+  background: linear-gradient(135deg, rgba(0, 212, 170, 0.2), rgba(139, 92, 246, 0.2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 5rem;
+}
+
+.ev-preview-content {
+  padding: 32px;
+}
+
+.ev-preview-content h3 {
+  margin: 0 0 20px;
+  font-size: 1.1rem;
+}
+
+.ev-preview-content ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ev-preview-content li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.ev-detail-content {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 48px;
+}
+
+@media (max-width: 1024px) {
+  .ev-detail-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ev-detail-section {
+  margin-bottom: 48px;
+}
+
+.ev-detail-section h2 {
+  font-size: 1.5rem;
+  margin-bottom: 24px;
+}
+
+.ev-learning-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.ev-learning-item {
+  display: flex;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.ev-syllabus-section {
+  margin-bottom: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.ev-syllabus-header {
+  background: rgba(255, 255, 255, 0.04);
+  padding: 16px 20px;
+  font-weight: 600;
+}
+
+.ev-syllabus-lessons {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.ev-syllabus-lessons li {
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+}
+
+.ev-syllabus-lessons li svg {
+  color: #00d4aa;
+}
+
+.ev-requirements-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ev-requirements-list li {
+  position: relative;
+  padding-left: 20px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.ev-requirements-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 10px;
+  width: 6px;
+  height: 6px;
+  background: #00d4aa;
+  border-radius: 50%;
+}
+
 /* ===== FILTERS ===== */
 .ev-catalog-filters {
   display: flex;
