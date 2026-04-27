@@ -269,15 +269,6 @@ export default function App() {
               {/* Certificate mockup */}
               <div className="lx-hero-right">
                 <div className="lx-cert-mockup">
-                  {/* chip top right */}
-                  <div className="lx-float-chip lx-float-chip-1">
-                    <span className="lx-chip-icon">🏅</span>
-                    <div>
-                      <div className="lx-chip-value">Certificado</div>
-                      <div className="lx-chip-label">Verificado digitalmente</div>
-                    </div>
-                  </div>
-
                   <div className="lx-cert-card">
                     <div className="lx-cert-header">
                       <div className="lx-cert-logo-mini">
@@ -315,15 +306,6 @@ export default function App() {
                       <span className="lx-cert-skill">React</span>
                       <span className="lx-cert-skill">JavaScript</span>
                       <span className="lx-cert-skill">Frontend</span>
-                    </div>
-                  </div>
-
-                  {/* chip bottom left */}
-                  <div className="lx-float-chip lx-float-chip-2">
-                    <span className="lx-chip-icon">📈</span>
-                    <div>
-                      <div className="lx-chip-value">+38% salario</div>
-                      <div className="lx-chip-label">promedio tras certificarse</div>
                     </div>
                   </div>
                 </div>
