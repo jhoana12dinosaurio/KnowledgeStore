@@ -664,13 +664,13 @@ body {
 }
 
 .ev-section-header h2 span {
-  background: linear-gradient(135deg, #00d4aa 0%, #00e5b8 100%);
+  background: linear-gradient(135deg, #04f7c6 0%, #00e5b8 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-.ev-section-header p {
+.ev-section-header p { 
   color: rgba(255, 255, 255, 0.5);
   font-size: 1.05rem;
   margin: 0;
@@ -1820,49 +1820,4 @@ html {
   max-width: none !important;
   margin: 0 !important;
   box-sizing: border-box;
-}
-
-.ev-login-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-}
-
-.ev-login-box {
-  background: #111;
-  padding: 30px;
-  border-radius: 12px;
-  width: 300px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.ev-login-box input {
-  padding: 10px;
-  border-radius: 6px;
-  border: none;
-}
-
-.ev-login-submit {
-  background: #6366F1;
-  color: white;
-  padding: 10px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.ev-login-close {
-  background: transparent;
-  color: #aaa;
-  border: none;
-  cursor: pointer;
 }
