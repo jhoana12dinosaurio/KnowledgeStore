@@ -164,6 +164,8 @@ const memberships = [
 const StarRating = ({ rating }: { rating: number }) => {
   const fullStars = Math.floor(rating);
   const hasHalf = rating % 1 >= 0.5;
+
+  
   
   return (
     <div className="ev-star-rating">
@@ -194,6 +196,18 @@ export default function App() {
   const [selectedCategory, setSelectedCategory] = useState('Todos');
   const [showCourses, setShowCourses] = useState(false);
   const [showEnterprise, setShowEnterprise] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
+  const [showRegister, setShowRegister] = useState(false);
+
+  const [users, setUsers] = useState<any[]>([]);
+  const [currentUser, setCurrentUser] = useState<string | null>(null);
+
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
 
   const filteredCourses = useMemo(() => {
     return allCourses.filter(course => {
@@ -216,6 +230,32 @@ export default function App() {
       handleSearch();
     }
   };
+
+  const handleRegister = () => {
+  if (!name || !email || !password) {
+    alert("Completa todos los campos");
+    return;
+  }
+
+  const newUser = {
+    name,
+    email,
+    password
+  };
+
+  setUsers([...users, newUser]);
+  setCurrentUser(name);
+
+  alert("Registro exitoso (simulado)");
+
+  // limpiar campos
+  setName('');
+  setEmail('');
+  setPassword('');
+
+  // cerrar modal
+  setShowRegister(false);
+};
 
   const resetHome = () => {
     setShowCourses(false);
@@ -257,10 +297,96 @@ export default function App() {
           <li>Precios</li>
         </ul>
         <div className="ev-nav-actions">
-          <button className="ev-login-btn ev-login-ghost">Iniciar sesión</button>
-          <button className="ev-login-btn">Comenzar gratis</button>
+          <button 
+            className="ev-login-btn ev-login-ghost"
+            onClick={() => setShowLogin(true)}
+          >
+            Iniciar sesión
+          </button>
+          <button 
+            className="ev-login-btn"
+            onClick={() => setShowRegister(true)}
+          >
+            Comenzar gratis
+          </button>
         </div>
       </nav>
+
+      {showLogin && (
+        <div className="ev-login-modal">
+          <div className="ev-login-box">
+            <h2>Iniciar Sesión</h2>
+
+            <input type="text" placeholder="Correo o usuario" />
+            <input type="password" placeholder="Contraseña" />
+
+            <button className="ev-login-submit">Ingresar</button>
+
+            <button 
+              className="ev-login-close"
+              onClick={() => setShowLogin(false)}
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showRegister && (
+        <div className="ev-login-modal">
+          <div className="ev-login-box">
+            <h2>Crear cuenta</h2>
+
+            <input 
+              type="text" 
+              placeholder="Nombre completo"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+            <input 
+              type="email" 
+              placeholder="Correo electrónico"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+
+            <input 
+              type="password" 
+              placeholder="Contraseña"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+
+            <button 
+              className="ev-login-submit"
+              onClick={handleRegister}
+            >
+              Registrarse
+            </button>
+
+            <button 
+              className="ev-login-close"
+              onClick={() => setShowRegister(false)}
+            >
+              Cerrar
+            </button>
+
+            <p style={{ fontSize: '12px', textAlign: 'center' }}>
+              ¿Ya tienes cuenta? 
+              <span 
+                style={{ color: '#6366F1', cursor: 'pointer' }}
+                onClick={() => {
+                  setShowRegister(false);
+                  setShowLogin(true);
+                }}
+              >
+                Inicia sesión
+              </span>
+            </p>
+          </div>
+        </div>
+      )}
+
 
       {!showCourses ? (
         <>
