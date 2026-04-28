@@ -81,7 +81,7 @@ export default function App() {
 
     if (page === 'blog') return <BlogPage posts={blogPosts} />;
     if (page === 'live') return <LivePage sessions={liveSessions} />;
-    if (page === 'pricing') return <PricingPage memberships={memberships} onPlanAction={handlePlanAction} />;
+    if (page === 'pricing') return <PricingPage memberships={memberships} />;
     if (page === 'login') return <LoginPage onBackHome={resetHome} />;
 
     return (
