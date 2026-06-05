@@ -1,0 +1,183 @@
+/* ==========================================================================
+   AUTH STYLES (Login & Register) - Integrated with Learnix Design System
+   ========================================================================== */
+
+.auth-container {
+  min-height: 100vh;
+  min-height: 100svh; 
+  width: 100vw;
+  
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  margin: 0;
+  padding: 24px;
+  box-sizing: border-box;
+  
+  background: var(--bg);
+  position: relative;
+  z-index: 1;
+}
+
+/* Reutiliza el fondo de rejilla sutil de tu lx-bg-layer */
+.auth-container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      ellipse 70% 45% at 50% 15%,
+      rgba(0, 200, 150, 0.08) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 50% 35% at 85% 30%,
+      rgba(99, 102, 241, 0.05) 0%,
+      transparent 65%
+    );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.auth-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 440px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 40px 32px;
+  border-radius: var(--radius-lg); /* Unificado con tus variables globales */
+  box-shadow:
+    0 24px 64px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(0, 200, 150, 0.05);
+  transition: border-color 0.3s ease;
+}
+
+.auth-card:hover {
+  border-color: rgba(0, 200, 150, 0.2);
+}
+
+.auth-card h1 {
+  margin: 0 0 10px;
+  text-align: center;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 2rem;
+  letter-spacing: -0.8px;
+}
+
+.auth-subtitle {
+  text-align: center;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 32px;
+}
+
+/* Contenedor del formulario para espaciado interno */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.auth-input-group {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.auth-input {
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  transition: all 0.22s ease;
+}
+
+.auth-input::placeholder {
+  color: var(--text-faint);
+}
+
+.auth-input:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.auth-input:focus {
+  outline: none;
+  border-color: var(--brand);
+  background: var(--surface);
+  box-shadow: 0 0 0 4px var(--brand-glow);
+}
+
+.auth-button {
+  width: 100%;
+  margin-top: 8px;
+  padding: 14px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--brand);
+  color: #041010; /* Color oscuro óptimo para contraste según tu CSS original */
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.auth-button:hover {
+  background: #00dba5;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(0, 200, 150, 0.35);
+}
+
+.auth-button:active {
+  transform: translateY(0);
+}
+
+.auth-footer {
+  margin-top: 28px;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.auth-footer a {
+  color: var(--brand);
+  text-decoration: none;
+  font-weight: 600;
+  margin-left: 5px;
+  transition: color 0.2s ease;
+}
+
+.auth-footer a:hover {
+  color: #00dba5;
+  text-decoration: underline;
+}
+
+/* Responsividad para móviles pequeños */
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 32px 20px;
+    border: none;
+    background: transparent;
+    box-shadow: none;
+  }
+  
+  .auth-container::before {
+    background: radial-gradient(
+      ellipse 100% 100% at 50% 10%,
+      rgba(0, 200, 150, 0.08) 0%,
+      transparent 80%
+    );
+  }
+}
