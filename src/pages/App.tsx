@@ -14,8 +14,68 @@ export default function App() {
   const [showCourses,      setShowCourses]       = useState(false);
   const [showEnterprise,   setShowEnterprise]    = useState(false);
   const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
+  const [enrolledCourse, setEnrolledCourse] = useState<number | null>(null);
+
+  
 
   const selectedCourse = useMemo(() => {
+    const reactCourseContent = {
+  stages: [
+    {
+      title: 'Etapa 1: Introducción a React',
+      progress: 0,
+      modules: [
+        '¿Qué es React?',
+        'Instalación de Node.js',
+        'Instalación de VS Code',
+        'Creación del primer proyecto con Vite',
+        'Estructura de carpetas'
+      ]
+    },
+    {
+      title: 'Etapa 2: Componentes',
+      progress: 0,
+      modules: [
+        'Componentes funcionales',
+        'JSX',
+        'Props',
+        'Eventos',
+        'Renderizado dinámico'
+      ]
+    },
+    {
+      title: 'Etapa 3: Hooks',
+      progress: 0,
+      modules: [
+        'useState',
+        'useEffect',
+        'useMemo',
+        'useRef',
+        'Custom Hooks'
+      ]
+    },
+    {
+      title: 'Etapa 4: Consumo de APIs',
+      progress: 0,
+      modules: [
+        'Fetch API',
+        'Async / Await',
+        'Manejo de errores',
+        'CRUD con API REST'
+      ]
+    },
+    {
+      title: 'Etapa 5: Proyecto Final',
+      progress: 0,
+      modules: [
+        'Dashboard React',
+        'Autenticación',
+        'Despliegue en Vercel',
+        'Entrega del proyecto'
+      ]
+    }
+  ]
+};
     return allCourses.find(c => c.id === selectedCourseId) || null;
   }, [selectedCourseId]);
 
@@ -48,6 +108,26 @@ export default function App() {
   const handleSearch = () => setShowCourses(true);
   const handleKeyPress = (e: React.KeyboardEvent) => { if (e.key === 'Enter') handleSearch(); };
 
+    const reactCourseContent = {
+  stages: [
+    {
+      title: 'Etapa 1: Introducción a React',
+      modules: [
+        '¿Qué es React?',
+        'Instalación de Node.js',
+        'Instalación de VS Code'
+      ]
+    },
+    {
+      title: 'Etapa 2: Componentes',
+      modules: [
+        'JSX',
+        'Props',
+        'Eventos'
+      ]
+    }
+  ]
+};
   return (
     <div className="lx-app">
       {/* Background */}
@@ -89,7 +169,108 @@ export default function App() {
       {/* ── Content ── */}
       <div className="lx-content">
         {/* ── Course Detail Page ── */}
-        {selectedCourseId && selectedCourse ? (
+        
+         {enrolledCourse &&
+   selectedCourse &&
+   selectedCourse.title === 'React desde Cero' ? (
+    <section className="lx-course-progress">
+
+  <div className="lx-course-layout">
+
+    {/* CONTENIDO PRINCIPAL */}
+    <div className="lx-course-main">
+
+      <div className="lx-course-banner">
+        <h1>React desde Cero</h1>
+
+        <div className="lx-progress-wrapper">
+          <div
+            className="lx-progress-fill"
+            style={{ width: '35%' }}
+          />
+        </div>
+
+        <span>8 de 23 lecciones completadas</span>
+      </div>
+
+      {reactCourseContent.stages.map((stage, index) => (
+
+        <div key={index} className="lx-stage-card">
+
+          <div className="lx-stage-header">
+            <h2>{stage.title}</h2>
+            <span>{stage.modules.length} lecciones</span>
+          </div>
+
+          <ul className="lx-stage-modules">
+
+            {stage.modules.map((module, idx) => (
+
+              <li key={idx} className="lx-lesson-card">
+
+                <div className="lx-lesson-icon">
+                  ▶️
+                </div>
+
+                <div className="lx-lesson-info">
+                  <h4>{module}</h4>
+                  <p>Video • 12 min</p>
+                </div>
+
+                <span className="lx-lesson-status">
+                  Pendiente
+                </span>
+
+              </li>
+
+            ))}
+
+          </ul>
+
+        </div>
+
+      ))}
+
+    </div>
+
+    {/* SIDEBAR */}
+   <aside className="lx-course-sidebar">
+
+  <div className="lx-sidebar-widget">
+    <h3>📊  Tu Progreso</h3>
+    <p>35% completado</p>
+  </div>
+
+  <div className="lx-sidebar-widget">
+    <h3>🎓 Certificado</h3>
+    <p>Disponible al completar el 100%</p>
+  </div>
+
+  <div className="lx-sidebar-widget">
+    <h3>📖 Contenido</h3>
+    <p>5 etapas</p>
+    <p>23 lecciones</p>
+  </div>
+
+  <div className="lx-sidebar-widget">
+    <h3>💬 Foro</h3>
+    <button className="lx-sidebar-btn">
+      Ir al foro
+    </button>
+  </div>
+
+  <div className="lx-sidebar-widget">
+    <h3>📝 Recursos</h3>
+    <button className="lx-sidebar-btn">
+      Descargar PDF
+    </button>
+  </div>
+
+</aside>
+  </div>
+
+</section>
+  ) : selectedCourse ? (
           <section className="lx-course-detail">
             <div className="lx-detail-header">
               <button className="lx-detail-back" onClick={() => setSelectedCourseId(null)}>
@@ -133,7 +314,12 @@ export default function App() {
               </div>
 
               <div className="lx-detail-actions">
-                <button className="lx-enroll-btn">Inscribirme ahora</button>
+                <button
+  className="lx-enroll-btn"
+  onClick={() => setEnrolledCourse(selectedCourse.id)}
+>
+  Inscribirme ahora
+</button>
                 <button className="lx-wishlist-btn" title="Agregar a favoritos">
                   <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
                     <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
