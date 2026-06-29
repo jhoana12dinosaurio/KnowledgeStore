@@ -308,9 +308,6 @@ const isLoggedIn = token !== null && token !== '' && token !== 'undefined' && to
   ) : (
     /* Si SÍ está logueado, los botones anteriores se ocultan y muestra esto en su lugar */
     <div className="lx-user-profile" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-      <span style={{ color: '#00C896', fontWeight: '600', fontSize: '14px', cursor: 'pointer' }} onClick={() => navigate("/dashboard")}>
-        👤 Mi Panel
-      </span>
       <button 
         className="lx-btn lx-btn-ghost" 
         onClick={() => {
