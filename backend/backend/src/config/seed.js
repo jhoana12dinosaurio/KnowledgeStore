@@ -176,16 +176,26 @@ async function seed() {
     );
     console.log('  ✔ Admin y estudiante demo creados');
 
-    // 5. Cursos
+    // 5. Cursos + lecciones demo
     for (const c of coursesData) {
       const courseSlug = slug(c.title);
-      await client.query(
+      const description = `Aprende ${c.title} con una ruta práctica de nivel ${c.level}. Incluye conceptos clave, ejercicios guiados y aplicación profesional.`;
+
+      const courseRes = await client.query(
         `INSERT INTO courses
-           (title, slug, category_id, instructor_id, level, price, duration_hrs, featured, status)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,'published')
-         ON CONFLICT (slug) DO NOTHING`,
+           (title, slug, description, category_id, instructor_id, level, price, duration_hrs, featured, status)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,'published')
+         ON CONFLICT (slug) DO UPDATE
+           SET description = EXCLUDED.description,
+               category_id = EXCLUDED.category_id,
+               instructor_id = EXCLUDED.instructor_id,
+               level = EXCLUDED.level,
+               price = EXCLUDED.price,
+               duration_hrs = EXCLUDED.duration_hrs,
+               featured = EXCLUDED.featured
+         RETURNING id`,
         [
-          c.title, courseSlug,
+          c.title, courseSlug, description,
           catMap[c.cat],
           instrMap[c.instructor],
           c.level,
@@ -194,8 +204,35 @@ async function seed() {
           c.featured,
         ]
       );
+
+      const courseId = courseRes.rows[0].id;
+      const lessons = [
+        { title: `Introducción a ${c.title}`, description: 'Objetivos, herramientas y primeros conceptos del curso.', duration: 20, position: 1, isFree: true },
+        { title: `Fundamentos prácticos`, description: 'Desarrollo de los temas centrales con ejemplos aplicados.', duration: 35, position: 2, isFree: c.price === 0 },
+        { title: `Proyecto final guiado`, description: 'Aplicación integral de lo aprendido en un caso práctico.', duration: 45, position: 3, isFree: false },
+      ];
+
+      for (const l of lessons) {
+        await client.query(
+          `INSERT INTO lessons (course_id, title, description, duration_min, position, is_free)
+           VALUES ($1,$2,$3,$4,$5,$6)
+           ON CONFLICT (course_id, position) DO UPDATE
+             SET title = EXCLUDED.title,
+                 description = EXCLUDED.description,
+                 duration_min = EXCLUDED.duration_min,
+                 is_free = EXCLUDED.is_free`,
+          [courseId, l.title, l.description, l.duration, l.position, l.isFree]
+        );
+      }
+
+      await client.query(
+        `UPDATE courses
+         SET total_lessons = (SELECT COUNT(*) FROM lessons WHERE course_id = $1)
+         WHERE id = $1`,
+        [courseId]
+      );
     }
-    console.log(`  ✔ ${coursesData.length} cursos`);
+    console.log(`  ✔ ${coursesData.length} cursos con lecciones demo`);
 
     // 6. Planes
     for (const p of plansData) {
@@ -216,7 +253,10 @@ async function seed() {
       await client.query(
         `INSERT INTO companies (name, industry, description, employees)
          VALUES ($1,$2,$3,$4)
-         ON CONFLICT DO NOTHING`,
+         ON CONFLICT (name) DO UPDATE
+           SET industry = EXCLUDED.industry,
+               description = EXCLUDED.description,
+               employees = EXCLUDED.employees`,
         [co.name, co.industry, co.description, co.employees]
       );
     }

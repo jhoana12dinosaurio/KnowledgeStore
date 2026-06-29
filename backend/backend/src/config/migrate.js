@@ -111,7 +111,8 @@ CREATE TABLE IF NOT EXISTS lessons (
   position     INT          NOT NULL DEFAULT 1,
   is_free      BOOLEAN      NOT NULL DEFAULT FALSE,
   created_at   TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
-  updated_at   TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+  updated_at   TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+  UNIQUE (course_id, position)
 );
 
 CREATE INDEX IF NOT EXISTS idx_lessons_course ON lessons(course_id);
@@ -199,7 +200,7 @@ CREATE INDEX IF NOT EXISTS idx_reviews_course ON reviews(course_id);
 -- ════════════════════════════════════════════
 CREATE TABLE IF NOT EXISTS payments (
   id               UUID           PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id          UUID           NOT NULL REFERENCES users(id) ON DELETE SET NULL,
+  user_id          UUID           REFERENCES users(id) ON DELETE SET NULL,
   course_id        UUID           REFERENCES courses(id) ON DELETE SET NULL,
   subscription_id  UUID           REFERENCES subscriptions(id) ON DELETE SET NULL,
   amount           NUMERIC(10,2)  NOT NULL,
@@ -232,7 +233,7 @@ CREATE TABLE IF NOT EXISTS certificates (
 -- ════════════════════════════════════════════
 CREATE TABLE IF NOT EXISTS companies (
   id           UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
-  name         VARCHAR(150) NOT NULL,
+  name         VARCHAR(150) NOT NULL UNIQUE,
   industry     VARCHAR(100),
   description  TEXT,
   employees    INT,

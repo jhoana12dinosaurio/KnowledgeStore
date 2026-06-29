@@ -58,30 +58,6 @@ const relatedCompanies = [
   { name: 'EduSoft',     industry: 'Software y UX',           description: 'Rutas de aprendizaje en diseño de productos digitales y experiencia de usuario.',                               employees: '180+' },
 ];
 
-const alliedCompanies = [
-  { initial: 'G', name: 'Google', sector: 'Tecnología', description: 'Innovación en búsqueda, cloud computing y soluciones empresariales.', benefits: ['Cloud Services', 'Analytics', 'DevTools'] },
-  { initial: 'M', name: 'Microsoft', sector: 'Tecnología', description: 'Software empresarial, cloud computing y herramientas de productividad.', benefits: ['Azure Cloud', 'Office Suite', 'Developer Tools'] },
-  { initial: 'A', name: 'Amazon', sector: 'Tecnología', description: 'E-commerce, cloud computing y servicios web innovadores.', benefits: ['AWS Services', 'Big Data', 'AI/ML'] },
-  { initial: 'I', name: 'IBM', sector: 'Tecnología', description: 'Soluciones de enterprise, infraestructura y servicios cloud.', benefits: ['Enterprise Solutions', 'Security', 'Hybrid Cloud'] },
-  { initial: 'S', name: 'Salesforce', sector: 'Software', description: 'Plataformas CRM y aplicaciones empresariales en la nube.', benefits: ['CRM Platform', 'Customer Data', 'Marketing Tools'] },
-  { initial: 'O', name: 'Oracle', sector: 'Base de Datos', description: 'Bases de datos, ERP y soluciones empresariales integrales.', benefits: ['Database Solutions', 'ERP Systems', 'Cloud Services'] },
-  { initial: 'J', name: 'Jetbrains', sector: 'Desarrollo', description: 'Herramientas de desarrollo IDE profesionales y multiplataforma.', benefits: ['IDEs Profesionales', 'Code Quality', 'DevOps Tools'] },
-  { initial: 'F', name: 'Figma', sector: 'Diseño', description: 'Plataforma colaborativa para diseño UI/UX y prototipado.', benefits: ['Design Collaboration', 'Prototyping', 'Design Systems'] },
-  { initial: 'D', name: 'Datadog', sector: 'DevOps', description: 'Monitoreo, logging y análisis de rendimiento en tiempo real.', benefits: ['Monitoring', 'Logging', 'Performance Analytics'] },
-  { initial: 'A', name: 'Atlassian', sector: 'Productividad', description: 'Herramientas de colaboración y gestión de proyectos ágil.', benefits: ['Project Management', 'Collaboration', 'DevOps'] },
-  { initial: 'T', name: 'Twilio', sector: 'Comunicaciones', description: 'APIs de comunicación para SMS, voz y video integrados.', benefits: ['SMS APIs', 'Voice APIs', 'Customer Engagement'] },
-  { initial: 'S', name: 'Slack', sector: 'Colaboración', description: 'Plataforma de mensajería y colaboración empresarial.', benefits: ['Team Communication', 'Integrations', 'Workflow Automation'] },
-];
-
-const alliedBenefits = [
-  { icon: '🎓', title: 'Certificaciones Reconocidas', description: 'Nuestros certificados son validados por líderes de la industria y ampliamente aceptados en el mercado laboral.' },
-  { icon: '🏢', title: 'Capacitación Corporativa', description: 'Soluciones de formación personalizadas para equipos empresariales con seguimiento de progreso en tiempo real.' },
-  { icon: '💻', title: 'Habilidades Digitales', description: 'Desarrolla competencias tecnológicas relevantes con contenido actualizado según tendencias del mercado.' },
-  { icon: '🤝', title: 'Oportunidades Laborales', description: 'Conecta con empleadores directamente y accede a bolsas de empleo exclusivas dentro de nuestra red.' },
-  { icon: '📈', title: 'Crecimiento Profesional', description: 'Impulsa tu carrera con rutas de aprendizaje diseñadas para avance profesional sostenible.' },
-  { icon: '🌐', title: 'Red de Networking', description: 'Únete a una comunidad global de profesionales, mentores e innovadores del sector tech.' },
-];
-
 const memberships = [
   {
     id: 'basic', name: 'Básico', price: 'Gratis', period: '',
@@ -176,38 +152,6 @@ const ArrowRight = () => (
     <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
   </svg>
 );
-
-/* ── Allied Company Card ── */
-const AlliedCompanyCard = ({ company }: { company: typeof alliedCompanies[0] }) => {
-  const [isHovered, setIsHovered] = useState(false);
-
-  return (
-    <div 
-      className={`lx-allied-logo-card ${isHovered ? 'lx-card-active' : ''}`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      {/* Initial state - visible by default */}
-      <div className="lx-allied-card-front">
-        <div className="lx-allied-logo-circle">{company.initial}</div>
-        <h4>{company.name}</h4>
-        <span className="lx-allied-sector">{company.sector}</span>
-      </div>
-
-      {/* Hover state - hidden by default, revealed on hover */}
-      <div className="lx-allied-card-back">
-        <h4 className="lx-allied-card-title">{company.name}</h4>
-        <p className="lx-allied-card-description">{company.description}</p>
-        <div className="lx-allied-card-benefits">
-          {company.benefits.map((benefit, idx) => (
-            <span key={idx} className="lx-benefit-tag">{benefit}</span>
-          ))}
-        </div>
-        <button className="lx-btn lx-btn-sm lx-btn-brand">Ver más</button>
-      </div>
-    </div>
-  );
-};
 
 /* ══════════════════════════════════ */
 export default function App() {
@@ -490,91 +434,47 @@ export default function App() {
 
         ) : showEnterprise ? (
 
-          /* ── Empresas Aliadas Page ── */
-          <section className="lx-allied-page">
-            {/* Header Section */}
-            <div className="lx-allied-header">
-              <div className="lx-allied-head-content">
-                <p className="lx-allied-label">Alianzas estratégicas</p>
-                <h1>Empresas Aliadas</h1>
-                <p className="lx-allied-subtitle">Nuestras certificaciones son reconocidas por organizaciones comprometidas con el desarrollo del talento y la formación continua.</p>
-              </div>
+          /* ── Enterprise Page ── */
+          <section className="lx-enterprise-page">
+            <div className="lx-sec-head" style={{ maxWidth: 700 }}>
+              <p className="lx-sec-label">Soluciones corporativas</p>
+              <h2>Empresas que confían en Learnix</h2>
+              <p>Líderes que ya impulsan sus equipos con nuestras soluciones de formación corporativa.</p>
             </div>
 
-            {/* Description Block */}
-            <div className="lx-allied-description">
-              <div className="lx-allied-desc-content">
-                <h2>Colaboración con líderes de la industria</h2>
-                <p>Trabajamos junto a empresas e instituciones de renombre global para asegurar que nuestros programas de capacitación reflejen las necesidades reales del mercado laboral. Esta alianza garantiza que nuestros estudiantes adquieren las habilidades más demandadas y están preparados para prosperar en sus carreras profesionales.</p>
-                <div className="lx-allied-highlights">
-                  <div className="lx-highlight-item">
-                    <span className="lx-highlight-icon">✓</span>
-                    <div>
-                      <h4>Empleabilidad garantizada</h4>
-                      <p>Nuestros egresados son directamente contactados por nuestros aliados.</p>
-                    </div>
-                  </div>
-                  <div className="lx-highlight-item">
-                    <span className="lx-highlight-icon">✓</span>
-                    <div>
-                      <h4>Aprendizaje continuo</h4>
-                      <p>Cursos actualizados según tendencias y demandas del mercado real.</p>
-                    </div>
-                  </div>
-                  <div className="lx-highlight-item">
-                    <span className="lx-highlight-icon">✓</span>
-                    <div>
-                      <h4>Crecimiento profesional</h4>
-                      <p>Rutas de aprendizaje diseñadas para ascensos y nuevas oportunidades.</p>
-                    </div>
-                  </div>
+            <div className="lx-enterprise-grid">
+              {enterpriseSolutions.map(item => (
+                <div className="lx-enterprise-card" key={item.title}>
+                  <div className="lx-ent-icon-wrap">{item.icon}</div>
+                  <h3>{item.title}</h3>
+                  <p>{item.description}</p>
                 </div>
-              </div>
+              ))}
             </div>
 
-            {/* Companies Grid */}
-            <div className="lx-allied-companies-section">
-              <h2 className="lx-allied-companies-title">Nuestros aliados estratégicos</h2>
-              <div className="lx-allied-logos-grid">
-                {alliedCompanies.map((company, idx) => (
-                  <AlliedCompanyCard key={idx} company={company} />
-                ))}
-              </div>
-            </div>
-
-            {/* Benefits Section */}
-            <div className="lx-allied-benefits">
-              <h2 className="lx-allied-benefits-title">¿Qué ganas al estudiar con nosotros?</h2>
-              <div className="lx-allied-benefits-grid">
-                {alliedBenefits.map((benefit, idx) => (
-                  <div className="lx-allied-benefit-card" key={idx}>
-                    <span className="lx-benefit-icon">{benefit.icon}</span>
-                    <h3>{benefit.title}</h3>
-                    <p>{benefit.description}</p>
+            <h3 className="lx-companies-title">Empresas relacionadas</h3>
+            <div className="lx-companies-grid">
+              {relatedCompanies.map(co => (
+                <div className="lx-company-card" key={co.name}>
+                  <div className="lx-company-head">
+                    <div className="lx-company-initial">{co.name.charAt(0)}</div>
+                    <div>
+                      <h4>{co.name}</h4>
+                      <span className="lx-company-industry">{co.industry}</span>
+                    </div>
                   </div>
-                ))}
-              </div>
-            </div>
-
-            {/* CTA Section */}
-            <div className="lx-allied-cta">
-              <div className="lx-allied-cta-content">
-                <h2>¿Eres una empresa? Únete a nuestra red</h2>
-                <p>Formamos a los mejores profesionales. Conecta con talento listo para crecer.</p>
-                <div className="lx-allied-cta-buttons">
-                  <button className="lx-btn lx-btn-primary lx-btn-lg">Únete como empresa aliada</button>
-                  <button className="lx-btn lx-btn-ghost lx-btn-lg" onClick={goToCourses}>Conocer nuestras alianzas</button>
+                  <p>{co.description}</p>
+                  <span className="lx-company-employees">{co.employees} empleados</span>
                 </div>
-              </div>
+              ))}
             </div>
 
-            {/* Navigation Actions */}
-            <div className="lx-allied-nav">
-              <button className="lx-btn lx-btn-outline" onClick={resetHome}>
-                ← Volver al inicio
+            <div className="lx-ent-actions">
+              <button className="lx-btn lx-btn-primary lx-btn-lg" onClick={resetHome}>
+                Volver al inicio
               </button>
-              <button className="lx-btn lx-btn-secondary" onClick={goToCourses}>
-                Explorar cursos →
+              <button className="lx-btn lx-btn-ghost lx-btn-lg" onClick={goToCourses}>
+                Ver cursos
               </button>
             </div>
           </section>
