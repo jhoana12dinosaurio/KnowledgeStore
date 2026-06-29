@@ -47,4 +47,29 @@ adminRouter.get('/users',           ...adminOnly, aCtrl.getUsers);
 adminRouter.patch('/users/:id/toggle', ...adminOnly, aCtrl.toggleUser);
 adminRouter.get('/courses',         ...adminOnly, aCtrl.getAdminCourses);
 
-module.exports = { enrollRouter, planRouter, adminRouter };
+
+// ── Companies / Enterprise ─────────────────────────────────────────────────
+const companyRouter = require('express').Router();
+const cCtrl = require('../controllers/companyController');
+
+companyRouter.get('/', cCtrl.getCompanies);
+companyRouter.get('/:id', cCtrl.getCompanyById);
+companyRouter.post('/',
+  ...adminOnly,
+  body('name').trim().notEmpty().withMessage('El nombre de la empresa es requerido'),
+  body('employees').optional().isInt({ min: 0 }),
+  body('contact_email').optional().isEmail(),
+  validateRequest,
+  cCtrl.createCompany
+);
+companyRouter.patch('/:id',
+  ...adminOnly,
+  body('name').optional().trim().notEmpty(),
+  body('employees').optional().isInt({ min: 0 }),
+  body('contact_email').optional().isEmail(),
+  validateRequest,
+  cCtrl.updateCompany
+);
+companyRouter.delete('/:id', ...adminOnly, cCtrl.deleteCompany);
+
+module.exports = { enrollRouter, planRouter, adminRouter, companyRouter };

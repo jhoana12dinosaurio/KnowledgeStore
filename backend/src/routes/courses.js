@@ -2,6 +2,7 @@ const router = require('express').Router();
 const { body } = require('express-validator');
 const ctrl   = require('../controllers/courseController');
 const rCtrl  = require('../controllers/reviewController');
+const lCtrl  = require('../controllers/lessonController');
 const { authenticate, authorize, optionalAuth } = require('../middleware/auth');
 const { validateRequest } = require('../middleware/errorHandler');
 
@@ -34,6 +35,42 @@ router.patch('/:id',
 
 // DELETE /api/courses/:id  (solo admin)
 router.delete('/:id', authenticate, authorize('admin'), ctrl.deleteCourse);
+
+
+// ── Lecciones ───────────────────────────────────────────────────────────────
+// GET /api/courses/:courseId/lessons
+router.get('/:courseId/lessons', lCtrl.getLessonsByCourse);
+
+// POST /api/courses/:courseId/lessons
+router.post('/:courseId/lessons',
+  authenticate,
+  authorize('instructor', 'admin'),
+  body('title').trim().notEmpty().withMessage('El título de la lección es requerido'),
+  body('duration_min').optional().isInt({ min: 0 }),
+  body('position').optional().isInt({ min: 1 }),
+  body('is_free').optional().isBoolean(),
+  validateRequest,
+  lCtrl.createLesson
+);
+
+// PATCH /api/courses/:courseId/lessons/:lessonId
+router.patch('/:courseId/lessons/:lessonId',
+  authenticate,
+  authorize('instructor', 'admin'),
+  body('title').optional().trim().notEmpty(),
+  body('duration_min').optional().isInt({ min: 0 }),
+  body('position').optional().isInt({ min: 1 }),
+  body('is_free').optional().isBoolean(),
+  validateRequest,
+  lCtrl.updateLesson
+);
+
+// DELETE /api/courses/:courseId/lessons/:lessonId
+router.delete('/:courseId/lessons/:lessonId',
+  authenticate,
+  authorize('instructor', 'admin'),
+  lCtrl.deleteLesson
+);
 
 // ── Reseñas ──────────────────────────────────────────────────────────────────
 // GET /api/courses/:courseId/reviews

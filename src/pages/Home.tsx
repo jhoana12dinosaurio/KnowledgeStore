@@ -47,19 +47,6 @@ const stats = [
   { value: '17',     label: 'Escuelas',     icon: '🎓' },
 ];
 
-const enterpriseSolutions = [
-  { icon: '🧩', title: 'Formación a medida',   description: 'Programas personalizados para equipos de tecnología, marketing y operaciones, con rutas diseñadas según los objetivos de tu empresa.' },
-  { icon: '📊', title: 'Reportes y analytics', description: 'Seguimiento de progreso, métricas de adopción y resultados de aprendizaje para optimizar el desempeño del equipo.' },
-  { icon: '🤝', title: 'Soporte corporativo',  description: 'Account managers dedicados, onboarding para empresas y acceso directo a recursos exclusivos para clientes empresariales.' },
-];
-
-const relatedCompanies = [
-  { name: 'Nexa Talent', industry: 'Consultoría en RRHH',    description: 'Mejorando la formación de equipos con proyectos en soft skills y data-driven learning.',                        employees: '450+' },
-  { name: 'CloudNova',   industry: 'Cloud & DevOps',          description: 'Capacitación a medida para equipos de infraestructura y automatización de despliegues.',                        employees: '230+' },
-  { name: 'MercaLab',    industry: 'Marketing Digital',       description: 'Workshops especializados para campañas, SEO y análisis de rendimiento comercial.',                              employees: '310+' },
-  { name: 'EduSoft',     industry: 'Software y UX',           description: 'Rutas de aprendizaje en diseño de productos digitales y experiencia de usuario.',                               employees: '180+' },
-];
-
 const alliedCompanies = [
   { initial: 'G', name: 'Google', sector: 'Tecnología', description: 'Innovación en búsqueda, cloud computing y soluciones empresariales.', benefits: ['Cloud Services', 'Analytics', 'DevTools'] },
   { initial: 'M', name: 'Microsoft', sector: 'Tecnología', description: 'Software empresarial, cloud computing y herramientas de productividad.', benefits: ['Azure Cloud', 'Office Suite', 'Developer Tools'] },

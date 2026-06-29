@@ -6,7 +6,7 @@ const morgan   = require('morgan');
 
 const authRoutes             = require('./routes/auth');
 const courseRoutes           = require('./routes/courses');
-const { enrollRouter, planRouter, adminRouter } = require('./routes/index');
+const { enrollRouter, planRouter, adminRouter, companyRouter } = require('./routes/index');
 const { errorHandler, notFound } = require('./middleware/errorHandler');
 
 const app  = express();
@@ -41,6 +41,7 @@ app.use('/api/enrollments',   enrollRouter);
 app.use('/api/subscriptions', planRouter);
 app.use('/api/plans',         planRouter);
 app.use('/api/admin',         adminRouter);
+app.use('/api/companies',     companyRouter);
 
 // ── 404 y manejo de errores ───────────────────────────────────────────────────
 app.use(notFound);
@@ -57,6 +58,7 @@ app.listen(PORT, () => {
   console.log(`   GET    /api/courses/:slug`);
   console.log(`   GET    /api/courses/categories`);
   console.log(`   GET    /api/plans`);
+  console.log(`   GET    /api/companies`);
   console.log(`   POST   /api/enrollments`);
   console.log(`   GET    /api/enrollments/my`);
   console.log(`   GET    /api/admin/stats`);
