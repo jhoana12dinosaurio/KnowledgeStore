@@ -2,6 +2,14 @@ import { useState, useMemo } from 'react';
 import '../App.css';
 import { useNavigate } from 'react-router-dom';
 
+const slugify = (title: string) =>
+  title
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 
 const allCourses = [
   { id: 1,  title: 'React desde Cero',          category: 'Desarrollo Web',    level: 'Principiante', duration: '12h', rating: 4.9, students: 45200,  instructor: 'Ana García',       image: '⚛️', price: 'Gratis', featured: true },
@@ -116,8 +124,8 @@ const StarRating = ({ rating }: { rating: number }) => {
 };
 
 /* ── Course Card ── */
-const CourseCard = ({ course }: { course: typeof allCourses[0] }) => (
-  <div className="lx-course-card">
+const CourseCard = ({ course, onOpen }: { course: typeof allCourses[0]; onOpen: () => void }) => (
+  <div className="lx-course-card" onClick={onOpen}>
     <div className="lx-card-thumb">
       <span className="lx-card-thumb-emoji">{course.image}</span>
       {course.price === 'Gratis' && <span className="lx-badge lx-badge-free">Gratis</span>}
@@ -462,7 +470,13 @@ const isLoggedIn = token !== null && token !== '' && token !== 'undefined' && to
               </div>
 
               <div className="lx-courses-grid">
-                {featuredCourses.slice(0, 6).map(c => <CourseCard key={c.id} course={c} />)}
+                {featuredCourses.slice(0, 6).map(c => (
+                  <CourseCard
+                    key={c.id}
+                    course={c}
+                    onOpen={() => navigate(`/courses/${slugify(c.title)}`)}
+                  />
+                ))}
               </div>
 
               <button className="lx-view-all" onClick={goToCourses}>
@@ -668,7 +682,13 @@ const isLoggedIn = token !== null && token !== '' && token !== 'undefined' && to
 
             {filteredCourses.length > 0 ? (
               <div className="lx-catalog-grid">
-                {filteredCourses.map(c => <CourseCard key={c.id} course={c} />)}
+                {filteredCourses.map(c => (
+              <CourseCard
+                key={c.id}
+                course={c}
+                onOpen={() => navigate(`/courses/${slugify(c.title)}`)}
+              />
+            ))}
               </div>
             ) : (
               <div className="lx-empty">
