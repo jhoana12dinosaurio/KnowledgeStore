@@ -1,45 +1,33 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { registerUser } from "../services/authService";
-import "../Auth.css";
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ApiError } from '../services/api';
+import { registerUser } from '../services/authService';
+import '../auth.css';
 
 export default function Register() {
   const navigate = useNavigate();
 
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+    setLoading(true);
 
     try {
-      const data = await registerUser(name, email, password);
-
-      // 1. Validamos de forma segura que 'data' exista y traiga el token
-      if (data && data.token) {
-        localStorage.setItem("token", data.token);
-        
-        if (data.user && data.user.name) {
-          localStorage.setItem("userName", data.user.name);
-        }
-
-        alert(data.message || "¡Registro exitoso! Bienvenido a Learnix.");
-        
-        // 2. Corregido: Te redirige a la raíz "/" para cargar tu Home.tsx real
-        navigate("/");
-
-        // 3. Forzamos el refresco para que el Navbar detecte que ya iniciaste sesión
-        window.location.reload();
-        
-      } else {
-        // Evitamos que explote si data es null usando el encadenamiento opcional (?.)
-        alert(data?.error || "Error al registrarse");
-      }
-    } catch (error) {
-      // Capturamos cualquier error de red o backend para evitar pantallas en negro
-      console.error("Error crítico en el registro:", error);
-      alert("Hubo un problema de conexión al registrar tu cuenta.");
+      await registerUser(name, email, password);
+      navigate('/', { replace: true });
+    } catch (err) {
+      const message = err instanceof ApiError
+        ? err.message
+        : 'Hubo un problema de conexión al registrar tu cuenta.';
+      setError(message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -50,12 +38,15 @@ export default function Register() {
         <p className="auth-subtitle">Regístrate para acceder a todos los cursos</p>
 
         <form onSubmit={handleRegister} className="auth-form">
+          {error && <p className="auth-error">{error}</p>}
+
           <input
             className="auth-input"
             type="text"
             placeholder="Nombre completo"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            autoComplete="name"
             required
           />
 
@@ -65,6 +56,7 @@ export default function Register() {
             placeholder="Correo electrónico"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
             required
           />
 
@@ -74,18 +66,19 @@ export default function Register() {
             placeholder="Contraseña"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            autoComplete="new-password"
+            minLength={8}
             required
           />
 
-          <button className="auth-button" type="submit">
-            Registrarse
+          <button className="auth-button" type="submit" disabled={loading}>
+            {loading ? 'Creando cuenta…' : 'Registrarse'}
           </button>
         </form>
 
         <p className="auth-footer">
-          ¿Ya tienes cuenta? 
-          {/* Corregido también el link de abajo para que vaya al Login */}
-          <Link to="/login"> Inicia sesión</Link>
+          ¿Ya tienes cuenta?
+          <Link to="/login">Inicia sesión</Link>
         </p>
       </div>
     </div>

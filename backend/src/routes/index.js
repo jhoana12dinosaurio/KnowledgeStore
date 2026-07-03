@@ -1,22 +1,27 @@
+const { body, param } = require('express-validator');
+const { authenticate, authorize } = require('../middleware/auth');
+const { validateRequest } = require('../middleware/errorHandler');
+
+const uuidParam = (name) => param(name).isUUID().withMessage(`${name} inválido`);
+
 // ── Enrollments ──────────────────────────────────────────────────────────────
 const enrollRouter = require('express').Router();
 const enCtrl = require('../controllers/enrollmentController');
-const { authenticate } = require('../middleware/auth');
-const { body } = require('express-validator');
-const { validateRequest } = require('../middleware/errorHandler');
 
 enrollRouter.post('/',
   authenticate,
-  body('course_id').isUUID(),
+  body('course_id').isUUID().withMessage('course_id inválido'),
   validateRequest,
   enCtrl.enroll
 );
 enrollRouter.get('/my', authenticate, enCtrl.myEnrollments);
-enrollRouter.get('/:courseId/check', authenticate, enCtrl.checkEnrollment);
+enrollRouter.get('/:courseId/check', authenticate, uuidParam('courseId'), validateRequest, enCtrl.checkEnrollment);
 enrollRouter.patch('/:id/progress',
   authenticate,
-  body('lesson_id').isUUID(),
+  uuidParam('id'),
+  body('lesson_id').isUUID().withMessage('lesson_id inválido'),
   body('watch_pct').optional().isFloat({ min: 0, max: 100 }),
+  body('completed').optional().isBoolean().toBoolean(),
   validateRequest,
   enCtrl.updateProgress
 );
@@ -29,47 +34,46 @@ planRouter.get('/', pCtrl.getPlans);
 planRouter.get('/my', authenticate, pCtrl.mySubscription);
 planRouter.post('/',
   authenticate,
-  body('plan_id').isInt(),
+  body('plan_id').isInt({ min: 1 }).withMessage('plan_id inválido'),
   validateRequest,
   pCtrl.subscribe
 );
-planRouter.delete('/:id', authenticate, pCtrl.cancelSubscription);
+planRouter.delete('/:id', authenticate, uuidParam('id'), validateRequest, pCtrl.cancelSubscription);
 
 // ── Admin ────────────────────────────────────────────────────────────────────
 const adminRouter = require('express').Router();
 const aCtrl = require('../controllers/adminController');
-const { authorize } = require('../middleware/auth');
 
 const adminOnly = [authenticate, authorize('admin')];
 
-adminRouter.get('/stats',           ...adminOnly, aCtrl.getDashboardStats);
-adminRouter.get('/users',           ...adminOnly, aCtrl.getUsers);
-adminRouter.patch('/users/:id/toggle', ...adminOnly, aCtrl.toggleUser);
-adminRouter.get('/courses',         ...adminOnly, aCtrl.getAdminCourses);
-
+adminRouter.get('/stats', ...adminOnly, aCtrl.getDashboardStats);
+adminRouter.get('/users', ...adminOnly, aCtrl.getUsers);
+adminRouter.patch('/users/:id/toggle', ...adminOnly, uuidParam('id'), validateRequest, aCtrl.toggleUser);
+adminRouter.get('/courses', ...adminOnly, aCtrl.getAdminCourses);
 
 // ── Companies / Enterprise ─────────────────────────────────────────────────
 const companyRouter = require('express').Router();
 const cCtrl = require('../controllers/companyController');
 
 companyRouter.get('/', cCtrl.getCompanies);
-companyRouter.get('/:id', cCtrl.getCompanyById);
+companyRouter.get('/:id', uuidParam('id'), validateRequest, cCtrl.getCompanyById);
 companyRouter.post('/',
   ...adminOnly,
   body('name').trim().notEmpty().withMessage('El nombre de la empresa es requerido'),
-  body('employees').optional().isInt({ min: 0 }),
-  body('contact_email').optional().isEmail(),
+  body('employees').optional({ nullable: true }).isInt({ min: 0 }),
+  body('contact_email').optional({ nullable: true }).isEmail(),
   validateRequest,
   cCtrl.createCompany
 );
 companyRouter.patch('/:id',
   ...adminOnly,
+  uuidParam('id'),
   body('name').optional().trim().notEmpty(),
-  body('employees').optional().isInt({ min: 0 }),
-  body('contact_email').optional().isEmail(),
+  body('employees').optional({ nullable: true }).isInt({ min: 0 }),
+  body('contact_email').optional({ nullable: true }).isEmail(),
   validateRequest,
   cCtrl.updateCompany
 );
-companyRouter.delete('/:id', ...adminOnly, cCtrl.deleteCompany);
+companyRouter.delete('/:id', ...adminOnly, uuidParam('id'), validateRequest, cCtrl.deleteCompany);
 
 module.exports = { enrollRouter, planRouter, adminRouter, companyRouter };

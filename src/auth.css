@@ -181,3 +181,20 @@
     );
   }
 }
+.auth-error {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 99, 132, 0.32);
+  border-radius: var(--radius-md);
+  background: rgba(255, 99, 132, 0.1);
+  color: #ffb4c2;
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.auth-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+  transform: none;
+  box-shadow: none;
+}

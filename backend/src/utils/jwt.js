@@ -1,11 +1,23 @@
 const jwt = require('jsonwebtoken');
 
+const DEV_JWT_SECRET = 'learnix-dev-secret-change-me';
+
+const getJwtSecret = () => {
+  if (process.env.JWT_SECRET) return process.env.JWT_SECRET;
+
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('JWT_SECRET es obligatorio en producción');
+  }
+
+  return DEV_JWT_SECRET;
+};
+
 /**
  * Genera un access token JWT.
  * @param {{ id: string, email: string, role: string }} payload
  */
 const generateToken = (payload) =>
-  jwt.sign(payload, process.env.JWT_SECRET, {
+  jwt.sign(payload, getJwtSecret(), {
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
   });
 
@@ -22,4 +34,4 @@ const userResponse = (user) => ({
   created_at: user.created_at,
 });
 
-module.exports = { generateToken, userResponse };
+module.exports = { generateToken, getJwtSecret, userResponse };

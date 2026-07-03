@@ -31,6 +31,11 @@ const errorHandler = (err, req, res, next) => {
     return res.status(400).json({ error: 'Referencia inválida (foreign key)' });
   }
 
+  // Error por formato inválido, común con UUID mal formado.
+  if (err.code === '22P02') {
+    return res.status(400).json({ error: 'Formato de identificador inválido' });
+  }
+
   const status = err.status || 500;
   res.status(status).json({
     error: status === 500 ? 'Error interno del servidor' : err.message,

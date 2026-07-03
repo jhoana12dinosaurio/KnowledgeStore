@@ -1,42 +1,34 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { loginUser } from "../services/authService";
-import "../Auth.css";
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ApiError } from '../services/api';
+import { loginUser } from '../services/authService';
+import '../auth.css';
 
 export default function Login() {
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
-  e.preventDefault();
+    e.preventDefault();
+    setError('');
+    setLoading(true);
 
-  try {
-    const data = await loginUser(email, password);
-
-    // 1. Validamos de forma segura que 'data' exista antes de leer sus propiedades
-    if (data && data.token) {
-      localStorage.setItem("token", data.token);
-      
-      if (data.user && data.user.name) {
-        localStorage.setItem("userName", data.user.name);
-      }
-
-      // 2. Cambiado de "/home" a "/" para que te mande a la página principal real de tu app
-      navigate("/"); 
-    
-
-    } else {
-      // Si data existe pero no hay token, muestra el error. Si data es null, usa el texto por defecto.
-      alert(data?.error || "Credenciales inválidas");
+    try {
+      await loginUser(email, password);
+      navigate('/', { replace: true });
+    } catch (err) {
+      const message = err instanceof ApiError
+        ? err.message
+        : 'Hubo un problema de conexión con el servidor.';
+      setError(message);
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    // 3. Capturamos cualquier colapso de red o del backend para que la pantalla NUNCA se quede en negro
-    console.error("Error crítico en el login:", error);
-    alert("Hubo un problema de conexión con el servidor.");
-  }
-};
+  };
 
   return (
     <div className="auth-container">
@@ -45,12 +37,15 @@ export default function Login() {
         <p className="auth-subtitle">Inicia sesión para continuar</p>
 
         <form onSubmit={handleLogin} className="auth-form">
+          {error && <p className="auth-error">{error}</p>}
+
           <input
             className="auth-input"
             type="email"
             placeholder="Correo electrónico"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
             required
           />
 
@@ -60,11 +55,12 @@ export default function Login() {
             placeholder="Contraseña"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            autoComplete="current-password"
             required
           />
 
-          <button className="auth-button" type="submit">
-            Ingresar
+          <button className="auth-button" type="submit" disabled={loading}>
+            {loading ? 'Ingresando…' : 'Ingresar'}
           </button>
         </form>
 

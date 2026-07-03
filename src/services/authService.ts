@@ -1,39 +1,41 @@
-const API_URL = "http://localhost:3000/api/auth";
+import { postJson } from './api';
 
-export const registerUser = async (
-  name: string,
-  email: string,
-  password: string
-) => {
-  const response = await fetch(`${API_URL}/register`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      name,
-      email,
-      password,
-    }),
-  });
-
-  return response.json();
+type AuthUser = {
+  id: string;
+  name: string;
+  email: string;
+  role: 'student' | 'instructor' | 'admin';
+  avatar_url?: string | null;
+  bio?: string | null;
+  created_at?: string;
 };
 
-export const loginUser = async (
-  email: string,
-  password: string
-) => {
-  const response = await fetch(`${API_URL}/login`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      email,
-      password,
-    }),
-  });
+type AuthResponse = {
+  message?: string;
+  token: string;
+  user: AuthUser;
+};
 
-  return response.json();
+const persistSession = (data: AuthResponse) => {
+  localStorage.setItem('token', data.token);
+  localStorage.setItem('userName', data.user?.name || 'Usuario');
+  localStorage.setItem('userRole', data.user?.role || 'student');
+};
+
+export const registerUser = async (name: string, email: string, password: string) => {
+  const data = await postJson<AuthResponse>('/auth/register', { name, email, password });
+  persistSession(data);
+  return data;
+};
+
+export const loginUser = async (email: string, password: string) => {
+  const data = await postJson<AuthResponse>('/auth/login', { email, password });
+  persistSession(data);
+  return data;
+};
+
+export const logoutUser = () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('userName');
+  localStorage.removeItem('userRole');
 };

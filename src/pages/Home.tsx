@@ -1,6 +1,8 @@
-import { useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import '../App.css';
 import { useNavigate } from 'react-router-dom';
+import { getJson } from '../services/api';
+import { logoutUser } from '../services/authService';
 
 const slugify = (title: string) =>
   title
@@ -11,7 +13,149 @@ const slugify = (title: string) =>
     .replace(/[^a-z0-9-]+/g, '-')
     .replace(/^-+|-+$/g, '');
 
-const allCourses = [
+type CourseCardData = {
+  id: string | number;
+  title: string;
+  slug?: string;
+  category: string;
+  level: string;
+  duration: string;
+  rating: number;
+  students: number;
+  instructor: string;
+  image: string;
+  price: string;
+  featured?: boolean;
+};
+
+type MembershipCardData = {
+  id: string;
+  name: string;
+  price: string;
+  period: string;
+  description: string;
+  features: string[];
+  buttonText: string;
+  highlighted: boolean;
+  color: string;
+};
+
+type AlliedCompanyData = {
+  initial: string;
+  name: string;
+  sector: string;
+  description: string;
+  benefits: string[];
+};
+
+type ApiCourse = {
+  id: string;
+  title: string;
+  slug?: string;
+  category?: string;
+  level?: string;
+  duration_hrs?: number | string;
+  rating?: number | string;
+  total_students?: number | string;
+  instructor?: string;
+  instructor_name?: string;
+  price?: number | string;
+  featured?: boolean;
+};
+
+type ApiCategory = { name: string };
+type ApiPlan = {
+  id: number;
+  name: string;
+  plan_type: 'basic' | 'pro' | 'enterprise';
+  price_monthly: number | string;
+  description?: string;
+  features?: string[];
+};
+
+type ApiCompany = {
+  id: string;
+  name: string;
+  industry?: string | null;
+  description?: string | null;
+  employees?: number | null;
+};
+
+const hasSession = () => {
+  const token = localStorage.getItem('token');
+  return Boolean(token && token !== 'undefined' && token !== 'null');
+};
+
+const categoryIcon = (category: string, title = '') => {
+  const text = `${category} ${title}`.toLowerCase();
+  if (text.includes('react')) return '⚛️';
+  if (text.includes('node')) return '🟢';
+  if (text.includes('python')) return '🐍';
+  if (text.includes('machine') || text.includes('learning')) return '🤖';
+  if (text.includes('data') || text.includes('sql')) return '📊';
+  if (text.includes('marketing') || text.includes('ads')) return '📢';
+  if (text.includes('inglés') || text.includes('english')) return '🇬🇧';
+  if (text.includes('diseño') || text.includes('figma') || text.includes('ux')) return '🎨';
+  if (text.includes('devops') || text.includes('docker') || text.includes('cloud')) return '☁️';
+  if (text.includes('mobile') || text.includes('android') || text.includes('ios')) return '📱';
+  return '📚';
+};
+
+const formatCoursePrice = (price?: number | string) => {
+  const value = Number(price ?? 0);
+  return value === 0 ? 'Gratis' : `$${Number.isFinite(value) ? value.toFixed(0) : price}`;
+};
+
+const formatPlanPrice = (price?: number | string) => {
+  const value = Number(price ?? 0);
+  return value === 0 ? 'Gratis' : `$${Number.isFinite(value) ? value.toFixed(0) : price}`;
+};
+
+const mapApiCourse = (course: ApiCourse): CourseCardData => {
+  const category = course.category || 'General';
+  const rating = Number(course.rating ?? 0);
+  const students = Number(course.total_students ?? 0);
+  return {
+    id: course.id,
+    title: course.title,
+    slug: course.slug || slugify(course.title),
+    category,
+    level: course.level || 'Principiante',
+    duration: `${Number(course.duration_hrs ?? 0)}h`,
+    rating: Number.isFinite(rating) && rating > 0 ? rating : 4.7,
+    students: Number.isFinite(students) ? students : 0,
+    instructor: course.instructor || course.instructor_name || 'Equipo Learnix',
+    image: categoryIcon(category, course.title),
+    price: formatCoursePrice(course.price),
+    featured: Boolean(course.featured),
+  };
+};
+
+const mapApiPlan = (plan: ApiPlan): MembershipCardData => ({
+  id: plan.plan_type,
+  name: plan.name,
+  price: formatPlanPrice(plan.price_monthly),
+  period: plan.plan_type === 'basic' ? '' : plan.plan_type === 'enterprise' ? '/usuario/mes' : '/mes',
+  description: plan.description || 'Plan de aprendizaje Learnix',
+  features: Array.isArray(plan.features) ? plan.features : [],
+  buttonText: plan.plan_type === 'basic' ? 'Comenzar gratis' : plan.plan_type === 'enterprise' ? 'Contactar ventas' : 'Obtener Pro',
+  highlighted: plan.plan_type === 'pro',
+  color: plan.plan_type === 'basic' ? '#6366F1' : plan.plan_type === 'enterprise' ? '#8B5CF6' : '#00C896',
+});
+
+const mapApiCompany = (company: ApiCompany): AlliedCompanyData => ({
+  initial: company.name.charAt(0).toUpperCase(),
+  name: company.name,
+  sector: company.industry || 'Aliado estratégico',
+  description: company.description || 'Empresa aliada comprometida con la formación de talento digital.',
+  benefits: [
+    company.industry || 'Formación',
+    company.employees ? `${company.employees}+ colaboradores` : 'Talento digital',
+    'Networking',
+  ],
+});
+
+const allCourses: CourseCardData[] = [
   { id: 1,  title: 'React desde Cero',          category: 'Desarrollo Web',    level: 'Principiante', duration: '12h', rating: 4.9, students: 45200,  instructor: 'Ana García',       image: '⚛️', price: 'Gratis', featured: true },
   { id: 2,  title: 'Node.js Profesional',        category: 'Desarrollo Web',    level: 'Intermedio',   duration: '18h', rating: 4.8, students: 32100,  instructor: 'Carlos Ruiz',      image: '🟢', price: '$29' },
   { id: 3,  title: 'TypeScript Avanzado',        category: 'Desarrollo Web',    level: 'Avanzado',     duration: '15h', rating: 4.7, students: 18500,  instructor: 'María López',      image: '📘', price: '$39' },
@@ -124,7 +268,7 @@ const StarRating = ({ rating }: { rating: number }) => {
 };
 
 /* ── Course Card ── */
-const CourseCard = ({ course, onOpen }: { course: typeof allCourses[0]; onOpen: () => void }) => (
+const CourseCard = ({ course, onOpen }: { course: CourseCardData; onOpen: () => void }) => (
   <div className="lx-course-card" onClick={onOpen}>
     <div className="lx-card-thumb">
       <span className="lx-card-thumb-emoji">{course.image}</span>
@@ -175,7 +319,7 @@ const ArrowRight = () => (
 );
 
 /* ── Allied Company Card ── */
-const AlliedCompanyCard = ({ company }: { company: typeof alliedCompanies[0] }) => {
+const AlliedCompanyCard = ({ company }: { company: AlliedCompanyData }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -211,26 +355,86 @@ export default function App() {
 
   const navigate = useNavigate();
   
-  const [searchTerm,       setSearchTerm]       = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Todos');
-  const [showCourses,      setShowCourses]       = useState(false);
-  const [showEnterprise,   setShowEnterprise]    = useState(false);
+  const [showCourses, setShowCourses] = useState(false);
+  const [showEnterprise, setShowEnterprise] = useState(false);
+  const [courses, setCourses] = useState<CourseCardData[]>(allCourses);
+  const [categoryOptions, setCategoryOptions] = useState<string[]>(categories);
+  const [membershipOptions, setMembershipOptions] = useState<MembershipCardData[]>(memberships);
+  const [companyOptions, setCompanyOptions] = useState<AlliedCompanyData[]>(alliedCompanies);
+  const [coursesStatus, setCoursesStatus] = useState<'loading' | 'ready' | 'fallback'>('loading');
+  const [isLoggedIn, setIsLoggedIn] = useState(hasSession);
 
-const token = localStorage.getItem('token');
-const isLoggedIn = token !== null && token !== '' && token !== 'undefined' && token !== 'null';
+  useEffect(() => {
+    let active = true;
+
+    const loadPlatformData = async () => {
+      try {
+        const [coursesResult, categoriesResult, plansResult, companiesResult] = await Promise.allSettled([
+          getJson<{ data: ApiCourse[] }>('/courses?limit=100&sort=featured'),
+          getJson<{ categories: ApiCategory[] }>('/courses/categories'),
+          getJson<{ plans: ApiPlan[] }>('/plans'),
+          getJson<{ companies: ApiCompany[] }>('/companies'),
+        ]);
+
+        if (!active) return;
+
+        if (coursesResult.status === 'fulfilled' && Array.isArray(coursesResult.value.data)) {
+          const apiCourses = coursesResult.value.data.map(mapApiCourse);
+          if (apiCourses.length > 0) {
+            setCourses(apiCourses);
+            setCoursesStatus('ready');
+          } else {
+            setCoursesStatus('fallback');
+          }
+        } else {
+          setCoursesStatus('fallback');
+        }
+
+        if (categoriesResult.status === 'fulfilled' && Array.isArray(categoriesResult.value.categories)) {
+          const apiCategories = categoriesResult.value.categories.map((cat) => cat.name).filter(Boolean);
+          setCategoryOptions(['Todos', ...apiCategories]);
+        }
+
+        if (plansResult.status === 'fulfilled' && Array.isArray(plansResult.value.plans)) {
+          const apiPlans = plansResult.value.plans.map(mapApiPlan);
+          if (apiPlans.length > 0) setMembershipOptions(apiPlans);
+        }
+
+        if (companiesResult.status === 'fulfilled' && Array.isArray(companiesResult.value.companies)) {
+          const apiCompanies = companiesResult.value.companies.map(mapApiCompany);
+          if (apiCompanies.length > 0) setCompanyOptions(apiCompanies);
+        }
+      } catch {
+        if (active) setCoursesStatus('fallback');
+      }
+    };
+
+    loadPlatformData();
+
+    const syncSession = () => setIsLoggedIn(hasSession());
+    window.addEventListener('storage', syncSession);
+
+    return () => {
+      active = false;
+      window.removeEventListener('storage', syncSession);
+    };
+  }, []);
 
   const filteredCourses = useMemo(() =>
-    allCourses.filter(c => {
-      const q = searchTerm.toLowerCase();
+    courses.filter(c => {
+      const q = searchTerm.trim().toLowerCase();
       const matchSearch = !q || c.title.toLowerCase().includes(q) ||
         c.category.toLowerCase().includes(q) || c.instructor.toLowerCase().includes(q);
       const matchCat = selectedCategory === 'Todos' || c.category === selectedCategory;
       return matchSearch && matchCat;
     }),
-    [searchTerm, selectedCategory]
+    [courses, searchTerm, selectedCategory]
   );
 
-  const featuredCourses = allCourses.filter(c => c.featured);
+  const featuredCourses = courses.filter(c => c.featured).slice(0, 8);
+  const visibleFeaturedCourses = featuredCourses.length > 0 ? featuredCourses : courses.slice(0, 6);
 
   const resetHome = () => {
     setShowCourses(false);
@@ -241,6 +445,13 @@ const isLoggedIn = token !== null && token !== '' && token !== 'undefined' && to
 
   const goToCourses = () => { setShowCourses(true); setShowEnterprise(false); };
   const goToEnterprise = () => { setShowEnterprise(true); setShowCourses(true); };
+  const goToPlans = () => {
+    setShowCourses(false);
+    setShowEnterprise(false);
+    window.setTimeout(() => {
+      document.getElementById('planes')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 0);
+  };
 
   const handleSearch = () => setShowCourses(true);
   const handleKeyPress = (e: React.KeyboardEvent) => { if (e.key === 'Enter') handleSearch(); };
@@ -273,63 +484,36 @@ const isLoggedIn = token !== null && token !== '' && token !== 'undefined' && to
                 </span>
               </button>
             </li>
-            <li><button>Precios</button></li>
+            <li><button onClick={goToPlans}>Precios</button></li>
           </ul>
 
           <div className="lx-nav-ctas">
-  {/* Si NO está logueado, muestra los botones de registro e inicio de sesión */}
-  {!isLoggedIn ? (
-    <>
-      <button className="lx-btn lx-btn-ghost" onClick={() => navigate("/login")}>
-        Iniciar sesión
-      </button>
-      <button className="lx-btn lx-btn-primary" onClick={() => navigate("/register")}>
-        Comenzar gratis
-      </button>
-    </>
-  ) : (
-    /* Si SÍ está logueado, los botones anteriores se ocultan y muestra esto en su lugar */
-    <div className="lx-nav-ctas">
-  {/* Si NO está logueado, muestra los botones de registro e inicio de sesión */}
-  {!isLoggedIn ? (
-    <>
-      <button className="lx-btn lx-btn-ghost" onClick={() => navigate("/login")}>
-        Iniciar sesión
-      </button>
-      <button className="lx-btn lx-btn-primary" onClick={() => navigate("/register")}>
-        Comenzar gratis
-      </button>
-    </>
-  ) : (
-    /* Si SÍ está logueado, los botones anteriores se ocultan y muestra esto en su lugar */
-    <div className="lx-user-profile" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-      <button 
-        className="lx-btn lx-btn-ghost" 
-        onClick={() => {
-          // 1. Lanza una ventana emergente de confirmación
-          const confirmarCierre = window.confirm("¿Estás seguro de que quieres cerrar sesión?");
-          
-          // 2. Si el usuario da clic en "Aceptar", procedemos a cerrar la sesión
-          if (confirmarCierre) {
-            localStorage.removeItem("token");
-            localStorage.removeItem("userName");
-
-            // Te redirigimos al Home (raíz)
-            navigate("/");
-
-            // Forzamos el refresco para limpiar el estado de React y pintar los botones de inmediato
-            window.location.reload();
-          }
-        }} 
-        style={{ fontSize: '12px', padding: '6px 12px', border: '1px solid rgba(255,255,255,0.15)' }}
-      >
-        Cerrar Sesión
-      </button>
-    </div>
-  )}
-</div>
-  )}
-</div>
+            {!isLoggedIn ? (
+              <>
+                <button className="lx-btn lx-btn-ghost" onClick={() => navigate('/login')}>
+                  Iniciar sesión
+                </button>
+                <button className="lx-btn lx-btn-primary" onClick={() => navigate('/register')}>
+                  Comenzar gratis
+                </button>
+              </>
+            ) : (
+              <div className="lx-user-profile" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span className="lx-user-name">Hola, {localStorage.getItem('userName') || 'estudiante'}</span>
+                <button
+                  className="lx-btn lx-btn-ghost"
+                  onClick={() => {
+                    logoutUser();
+                    setIsLoggedIn(false);
+                    navigate('/');
+                  }}
+                  style={{ fontSize: '12px', padding: '6px 12px', border: '1px solid rgba(255,255,255,0.15)' }}
+                >
+                  Cerrar sesión
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </nav>
 
@@ -470,11 +654,11 @@ const isLoggedIn = token !== null && token !== '' && token !== 'undefined' && to
               </div>
 
               <div className="lx-courses-grid">
-                {featuredCourses.slice(0, 6).map(c => (
+                {visibleFeaturedCourses.slice(0, 6).map(c => (
                   <CourseCard
                     key={c.id}
                     course={c}
-                    onOpen={() => navigate(`/courses/${slugify(c.title)}`)}
+                    onOpen={() => navigate(`/courses/${c.slug || slugify(c.title)}`)}
                   />
                 ))}
               </div>
@@ -494,8 +678,8 @@ const isLoggedIn = token !== null && token !== '' && token !== 'undefined' && to
                 </div>
 
                 <div className="lx-cat-grid">
-                  {categories.filter(c => c !== 'Todos').map(cat => {
-                    const count = allCourses.filter(c => c.category === cat).length;
+                  {categoryOptions.filter(c => c !== 'Todos').map(cat => {
+                    const count = courses.filter(c => c.category === cat).length;
                     return (
                       <div key={cat} className="lx-cat-card"
                         onClick={() => { setSelectedCategory(cat); setShowCourses(true); }}>
@@ -510,7 +694,7 @@ const isLoggedIn = token !== null && token !== '' && token !== 'undefined' && to
             </section>
 
             {/* ── Pricing ── */}
-            <section className="lx-pricing">
+            <section id="planes" className="lx-pricing">
               <div className="lx-sec-head">
                 <p className="lx-sec-label">Membresías</p>
                 <h2>Elige tu plan</h2>
@@ -518,7 +702,7 @@ const isLoggedIn = token !== null && token !== '' && token !== 'undefined' && to
               </div>
 
               <div className="lx-plans-grid">
-                {memberships.map(m => (
+                {membershipOptions.map(m => (
                   <div key={m.id}
                     className={`lx-plan-card${m.highlighted ? ' featured' : ''}`}
                     style={{ '--accent-color': m.color } as React.CSSProperties}>
@@ -595,7 +779,7 @@ const isLoggedIn = token !== null && token !== '' && token !== 'undefined' && to
             <div className="lx-allied-companies-section">
               <h2 className="lx-allied-companies-title">Nuestros aliados estratégicos</h2>
               <div className="lx-allied-logos-grid">
-                {alliedCompanies.map((company, idx) => (
+                {companyOptions.map((company, idx) => (
                   <AlliedCompanyCard key={idx} company={company} />
                 ))}
               </div>
@@ -649,7 +833,7 @@ const isLoggedIn = token !== null && token !== '' && token !== 'undefined' && to
                     ? searchTerm ? `Resultados para "${searchTerm}"` : 'Todos los cursos'
                     : selectedCategory}
                 </h1>
-                <p>{filteredCourses.length} cursos encontrados</p>
+                <p>{filteredCourses.length} cursos encontrados{coursesStatus === 'fallback' ? ' · modo respaldo local' : ''}</p>
               </div>
 
               <div className="lx-catalog-search">
@@ -665,7 +849,7 @@ const isLoggedIn = token !== null && token !== '' && token !== 'undefined' && to
             </div>
 
             <div className="lx-filters">
-              {categories.map(cat => (
+              {categoryOptions.map(cat => (
                 <button
                   key={cat}
                   className={`lx-filter-btn${selectedCategory === cat ? ' active' : ''}`}
@@ -673,7 +857,7 @@ const isLoggedIn = token !== null && token !== '' && token !== 'undefined' && to
                   {cat}
                   {cat !== 'Todos' && (
                     <span className="lx-filter-count">
-                      {allCourses.filter(c => c.category === cat).length}
+                      {courses.filter(c => c.category === cat).length}
                     </span>
                   )}
                 </button>
@@ -686,7 +870,7 @@ const isLoggedIn = token !== null && token !== '' && token !== 'undefined' && to
               <CourseCard
                 key={c.id}
                 course={c}
-                onOpen={() => navigate(`/courses/${slugify(c.title)}`)}
+                onOpen={() => navigate(`/courses/${c.slug || slugify(c.title)}`)}
               />
             ))}
               </div>

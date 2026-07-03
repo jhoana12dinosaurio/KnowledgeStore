@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { query } = require('../config/database');
+const { getJwtSecret } = require('../utils/jwt');
 
 /**
  * Verifica el JWT del header Authorization: Bearer <token>
@@ -15,7 +16,7 @@ const authenticate = async (req, res, next) => {
   const token = header.slice(7);
 
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    const payload = jwt.verify(token, getJwtSecret());
 
     // Verificar que el usuario sigue activo en BD
     const result = await query(
@@ -58,9 +59,9 @@ const optionalAuth = async (req, res, next) => {
   if (!header || !header.startsWith('Bearer ')) return next();
 
   try {
-    const payload = jwt.verify(header.slice(7), process.env.JWT_SECRET);
-    const result  = await query('SELECT id, email, role FROM users WHERE id = $1', [payload.id]);
-    if (result.rows.length) req.user = result.rows[0];
+    const payload = jwt.verify(header.slice(7), getJwtSecret());
+    const result  = await query('SELECT id, email, role, active FROM users WHERE id = $1', [payload.id]);
+    if (result.rows.length && result.rows[0].active) req.user = result.rows[0];
   } catch (_) { /* silencioso */ }
 
   next();

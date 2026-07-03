@@ -102,6 +102,18 @@ const updateProgress = async (req, res, next) => {
       return res.status(404).json({ error: 'Inscripción no encontrada' });
     }
 
+    // Verificar que la lección pertenece al curso inscrito
+    const lessonRes = await query(
+      'SELECT id FROM lessons WHERE id = $1 AND course_id = $2',
+      [lesson_id, enroll.rows[0].course_id]
+    );
+    if (!lessonRes.rows.length) {
+      return res.status(400).json({ error: 'La lección no pertenece al curso de esta inscripción' });
+    }
+
+    const safeCompleted = completed === true || completed === 'true';
+    const safeWatchPct = watch_pct === undefined ? 0 : Number(watch_pct);
+
     // Upsert progreso de lección
     await query(
       `INSERT INTO lesson_progress (user_id, lesson_id, completed, watch_pct)
@@ -110,7 +122,7 @@ const updateProgress = async (req, res, next) => {
          SET completed = EXCLUDED.completed,
              watch_pct = EXCLUDED.watch_pct,
              updated_at = NOW()`,
-      [req.user.id, lesson_id, completed || false, watch_pct || 0]
+      [req.user.id, lesson_id, safeCompleted, safeWatchPct]
     );
 
     // Recalcular progreso global del curso

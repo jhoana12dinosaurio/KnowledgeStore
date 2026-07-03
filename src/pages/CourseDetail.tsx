@@ -1,27 +1,30 @@
 import { useEffect, useState } from 'react';
-import {  useNavigate,useParams } from 'react-router-dom';
-
-type Course = {
-  id: number;
-  title: string;
-  description: string;
-  category: string;
-  instructor_name: string;
-  level: string;
-  duration_hrs: number;
-  price: number;
-  total_students: number;
-  total_reviews: number;
-  thumbnail_url?: string | null;
-};
+import { useNavigate, useParams } from 'react-router-dom';
+import { ApiError, getJson } from '../services/api';
 
 type Lesson = {
-  id: number;
+  id: string;
   title: string;
   description: string | null;
   duration_min: number;
   position: number;
   is_free: boolean;
+};
+
+type Course = {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  instructor_name: string;
+  level: string;
+  duration_hrs: number | string;
+  price: number | string;
+  total_students: number | string;
+  total_reviews: number | string;
+  rating?: number | string;
+  thumbnail_url?: string | null;
+  lessons?: Lesson[];
 };
 
 export default function CourseDetail() {
@@ -30,48 +33,51 @@ export default function CourseDetail() {
   const [course, setCourse] = useState<Course | null>(null);
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [status, setStatus] = useState<'idle' | 'loading' | 'loaded' | 'notfound' | 'error'>('idle');
-  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
-    if (!slug) return;
+    const controller = new AbortController();
 
-    setStatus('loading');
-    setErrorMessage('');
+    const loadCourse = async () => {
+      if (!slug) {
+        setStatus('notfound');
+        return;
+      }
 
-    fetch(`/api/courses/${encodeURIComponent(slug)}`)
-      .then(async (res) => {
-        if (res.status === 404) {
+      setStatus('loading');
+      setErrorMessage('');
+      setCourse(null);
+      setLessons([]);
+
+      try {
+        const response = await getJson<{ course: Course }>(`/courses/${encodeURIComponent(slug)}`, {
+          signal: controller.signal,
+        });
+
+        if (!response.course) {
           setStatus('notfound');
-          return null;
+          return;
         }
-        if (!res.ok) {
-          const body = await res.json().catch(() => ({}));
-          throw new Error(body?.error || 'Error al cargar el curso');
-        }
-        const json = await res.json();
-        return json.course as Course;
-      })
-      .then((courseData) => {
-        if (!courseData) return;
-        setCourse(courseData);
-        return fetch(`/api/courses/${courseData.id}/lessons`);
-      })
-      .then(async (res) => {
-        if (!res) return;
-        if (!res.ok) {
-          const body = await res.json().catch(() => ({}));
-          throw new Error(body?.error || 'Error al cargar las lecciones');
-        }
-        const json = await res.json();
-        setLessons(json.lessons || []);
+
+        setCourse(response.course);
+        setLessons(Array.isArray(response.course.lessons) ? response.course.lessons : []);
         setStatus('loaded');
-      })
-      .catch((err) => {
-        if (status !== 'notfound') {
-          setStatus('error');
-          setErrorMessage(err.message || 'Error inesperado');
+      } catch (err) {
+        if (controller.signal.aborted) return;
+
+        if (err instanceof ApiError && err.status === 404) {
+          setStatus('notfound');
+          return;
         }
-      });
+
+        setStatus('error');
+        setErrorMessage(err instanceof Error ? err.message : 'Error inesperado');
+      }
+    };
+
+    loadCourse();
+
+    return () => controller.abort();
   }, [slug]);
 
   if (status === 'loading' || status === 'idle') {
@@ -91,6 +97,7 @@ export default function CourseDetail() {
         <div className="lx-course-detail-empty">
           <h2>Curso no encontrado</h2>
           <p>No pudimos encontrar el curso solicitado. Verifica la URL o vuelve al catálogo.</p>
+          <button className="lx-btn lx-btn-primary" onClick={() => navigate('/')}>Volver al inicio</button>
         </div>
       </div>
     );
@@ -102,6 +109,7 @@ export default function CourseDetail() {
         <div className="lx-course-detail-empty">
           <h2>Error al cargar el curso</h2>
           <p>{errorMessage || 'Ocurrió un problema al obtener la información del curso.'}</p>
+          <button className="lx-btn lx-btn-primary" onClick={() => navigate('/')}>Volver al inicio</button>
         </div>
       </div>
     );
@@ -111,16 +119,17 @@ export default function CourseDetail() {
     return null;
   }
 
+  const numericPrice = Number(course.price);
+  const numericReviews = Number(course.total_reviews);
+
   return (
     <div className="lx-course-detail lx-container">
-        <div className="lx-course-detail-header">
-  <button
-    className="lx-back-btn"
-    onClick={() => navigate(-1)}
-  >
-    ← Volver al catálogo
-  </button>
-</div>
+      <div className="lx-course-detail-header">
+        <button className="lx-back-btn" onClick={() => navigate(-1)}>
+          ← Volver al catálogo
+        </button>
+      </div>
+
       <div className="lx-course-detail-grid">
         <section className="lx-course-detail-panel">
           <div className="lx-course-detail-hero">
@@ -133,8 +142,8 @@ export default function CourseDetail() {
               <p className="lx-course-detail-description">{course.description}</p>
               <div className="lx-course-detail-labels">
                 <span className="lx-level-tag">{course.level}</span>
-                <span className={course.price === 0 ? 'lx-price' : 'lx-price lx-price-paid'}>
-                  {course.price === 0 ? 'Gratis' : `$${course.price}`}
+                <span className={numericPrice === 0 ? 'lx-price' : 'lx-price lx-price-paid'}>
+                  {numericPrice === 0 ? 'Gratis' : `$${numericPrice.toFixed(0)}`}
                 </span>
               </div>
               <div className="lx-course-detail-meta">
@@ -152,7 +161,7 @@ export default function CourseDetail() {
                 </div>
                 <div className="lx-course-detail-meta-item">
                   <span>Valoración</span>
-                  <strong>{course.total_reviews > 0 ? `${course.total_reviews} reseñas` : 'Sin reseñas'}</strong>
+                  <strong>{numericReviews > 0 ? `${numericReviews} reseñas` : 'Sin reseñas'}</strong>
                 </div>
               </div>
               <div className="lx-course-detail-actions">
@@ -168,7 +177,7 @@ export default function CourseDetail() {
             <p>Temario ordenado por posición. Consulta cada sección antes de inscribirte.</p>
           </div>
           <div className="lx-lesson-list">
-            {lessons.map((lesson, index) => (
+            {lessons.length > 0 ? lessons.map((lesson, index) => (
               <div key={lesson.id} className="lx-lesson-card">
                 <div className="lx-lesson-index">{index + 1}</div>
                 <div className="lx-lesson-content">
@@ -179,7 +188,12 @@ export default function CourseDetail() {
                   </div>
                 </div>
               </div>
-            ))}
+            )) : (
+              <div className="lx-course-detail-empty">
+                <h3>Contenido en preparación</h3>
+                <p>Este curso aún no tiene lecciones publicadas.</p>
+              </div>
+            )}
           </div>
         </section>
       </div>

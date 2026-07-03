@@ -1,4 +1,10 @@
-const { query, getClient } = require('../config/database');
+const { query } = require('../config/database');
+
+const slugify = (value) =>
+  value.toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
 
 // ── GET /api/courses ─────────────────────────────────────────────────────────
 const getCourses = async (req, res, next) => {
@@ -175,9 +181,14 @@ const createCourse = async (req, res, next) => {
       thumbnail_url, preview_url, featured,
     } = req.body;
 
-    const slugStr = title.toLowerCase()
-      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const baseSlug = slugify(title.trim());
+    let slugStr = baseSlug;
+    let suffix = 1;
+
+    while ((await query('SELECT id FROM courses WHERE slug = $1', [slugStr])).rows.length) {
+      suffix += 1;
+      slugStr = `${baseSlug}-${suffix}`;
+    }
 
     const result = await query(
       `INSERT INTO courses
@@ -186,7 +197,7 @@ const createCourse = async (req, res, next) => {
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,'published')
        RETURNING *`,
       [
-        title, slugStr, description, category_id,
+        title.trim(), slugStr, description, category_id,
         req.user.id, level, price || 0,
         duration_hrs || 0, thumbnail_url, preview_url,
         featured || false,
@@ -218,16 +229,30 @@ const updateCourse = async (req, res, next) => {
 
     for (const f of fields) {
       if (req.body[f] !== undefined) {
-        params.push(req.body[f]);
+        params.push(f === 'title' ? req.body[f].trim() : req.body[f]);
         sets.push(`${f} = $${params.length}`);
       }
+    }
+
+    if (req.body.title !== undefined) {
+      const baseSlug = slugify(req.body.title.trim());
+      let slugStr = baseSlug;
+      let suffix = 1;
+
+      while ((await query('SELECT id FROM courses WHERE slug = $1 AND id <> $2', [slugStr, id])).rows.length) {
+        suffix += 1;
+        slugStr = `${baseSlug}-${suffix}`;
+      }
+
+      params.push(slugStr);
+      sets.push(`slug = $${params.length}`);
     }
 
     if (!sets.length) return res.status(400).json({ error: 'Nada que actualizar' });
 
     params.push(id);
     const result = await query(
-      `UPDATE courses SET ${sets.join(', ')} WHERE id = $${params.length} RETURNING *`,
+      `UPDATE courses SET ${sets.join(', ')}, updated_at = NOW() WHERE id = $${params.length} RETURNING *`,
       params
     );
 
@@ -241,7 +266,15 @@ const updateCourse = async (req, res, next) => {
 const deleteCourse = async (req, res, next) => {
   try {
     const { id } = req.params;
-    await query("UPDATE courses SET status = 'archived' WHERE id = $1", [id]);
+    const result = await query(
+      "UPDATE courses SET status = 'archived', updated_at = NOW() WHERE id = $1 RETURNING id",
+      [id]
+    );
+
+    if (!result.rows.length) {
+      return res.status(404).json({ error: 'Curso no encontrado' });
+    }
+
     res.json({ message: 'Curso archivado exitosamente' });
   } catch (err) {
     next(err);
