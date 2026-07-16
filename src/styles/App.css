@@ -2481,6 +2481,207 @@ body {
     font-weight:600;
 }
 
+.lx-lesson-card.completed{
+    border:1px solid rgba(0,212,170,0.35);
+    background:rgba(0,212,170,0.1);
+}
+
+.lx-lesson-btn{
+    border:none;
+    border-radius:999px;
+    padding:10px 14px;
+    background:#0f766e;
+    color:white;
+    font-weight:600;
+    cursor:pointer;
+    transition:transform 0.2s ease, background 0.2s ease;
+}
+
+.lx-lesson-btn:hover{
+    transform:translateY(-1px);
+    background:#14b8a6;
+}
+
+.lx-lesson-btn.done{
+    background:#00d4aa;
+    color:#052e2b;
+}
+
+.lx-auth-modal-backdrop{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.7);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:1000;
+}
+
+.lx-auth-modal{
+    width:min(100%, 420px);
+    background:#111827;
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:24px;
+    padding:24px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.35);
+}
+
+.lx-auth-modal-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:10px;
+}
+
+.lx-auth-modal-header h3{
+    color:white;
+    margin:0;
+}
+
+.lx-auth-close{
+    border:none;
+    background:transparent;
+    color:#94a3b8;
+    font-size:1.4rem;
+    cursor:pointer;
+}
+
+.lx-auth-subtitle{
+    color:#94a3b8;
+    margin-bottom:18px;
+    line-height:1.5;
+}
+
+.lx-auth-form{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+.lx-auth-form input{
+    width:100%;
+    border:none;
+    border-radius:12px;
+    padding:12px 14px;
+    background:#1f2937;
+    color:white;
+}
+
+.lx-auth-form input::placeholder{
+    color:#94a3b8;
+}
+
+.lx-auth-error{
+    color:#fda4af;
+    margin:0;
+    font-size:0.95rem;
+}
+
+.lx-btn-full{
+    width:100%;
+    justify-content:center;
+}
+
+.lx-auth-switch{
+    display:flex;
+    justify-content:center;
+    gap:8px;
+    margin-top:16px;
+    color:#cbd5e1;
+    flex-wrap:wrap;
+}
+
+.lx-auth-switch button{
+    border:none;
+    background:transparent;
+    color:#00d4aa;
+    cursor:pointer;
+    font-weight:600;
+}
+
+.lx-billing-form{
+    gap:10px;
+}
+
+.lx-billing-row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+
+.lx-input-group{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+}
+
+.lx-error-text{
+    color:#fda4af;
+    font-size:0.8rem;
+}
+
+.lx-success-banner{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin:16px auto 24px;
+    max-width:1100px;
+    background:rgba(0, 212, 170, 0.15);
+    border:1px solid rgba(0, 212, 170, 0.3);
+    color:#d1fae5;
+    padding:14px 18px;
+    border-radius:16px;
+}
+
+.lx-success-banner button{
+    border:none;
+    background:transparent;
+    color:white;
+    font-size:1.1rem;
+    cursor:pointer;
+}
+
+.lx-plan-modal{
+    width:min(100%, 560px);
+}
+
+.lx-plan-options{
+    display:grid;
+    gap:12px;
+    margin-bottom:16px;
+}
+
+.lx-plan-option{
+    text-align:left;
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:16px;
+    padding:14px 16px;
+    background:#1f2937;
+    color:white;
+    cursor:pointer;
+    transition:all 0.2s ease;
+}
+
+.lx-plan-option.active{
+    border-color:#00d4aa;
+    box-shadow:0 0 0 1px rgba(0,212,170,0.25);
+    background:rgba(0,212,170,0.12);
+}
+
+.lx-plan-option-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:6px;
+}
+
+.lx-plan-option p{
+    margin:0;
+    color:#cbd5e1;
+    font-size:0.95rem;
+}
 
 
 .lx-course-banner{

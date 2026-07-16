@@ -1,10 +1,134 @@
-import { useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import '../styles/App.css';
 import { 
   allCourses, categories, levels, stats, memberships,
   alliedCompanies, alliedBenefits
 } from '../data';
 import { StarRating, CourseCard, CheckIcon, ArrowRight, AlliedCompanyCard } from '../components';
+
+type LessonProgress = {
+  id: number;
+  title: string;
+  duration: string;
+  completed: boolean;
+};
+
+type StageProgress = {
+  title: string;
+  modules: LessonProgress[];
+};
+
+type CourseEnrollment = {
+  progress: number;
+  completedLessons: number;
+  totalLessons: number;
+  stages: StageProgress[];
+};
+
+type BillingFormData = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  cardNumber: string;
+  cardName: string;
+  expiry: string;
+  cvv: string;
+  dni: string;
+  address: string;
+  city: string;
+  postalCode: string;
+};
+
+const buildCourseProgress = (): CourseEnrollment => {
+  const stages: StageProgress[] = [
+    {
+      title: 'Etapa 1: Fundamentos',
+      modules: [
+        { id: 101, title: 'Introducción al curso', duration: '8 min', completed: false },
+        { id: 102, title: 'Herramientas necesarias', duration: '12 min', completed: false },
+        { id: 103, title: 'Objetivos del aprendizaje', duration: '10 min', completed: false }
+      ]
+    },
+    {
+      title: 'Etapa 2: Práctica guiada',
+      modules: [
+        { id: 201, title: 'Ejercicio paso a paso', duration: '15 min', completed: false },
+        { id: 202, title: 'Revisión de conceptos', duration: '9 min', completed: false },
+        { id: 203, title: 'Mini proyecto', duration: '18 min', completed: false }
+      ]
+    },
+    {
+      title: 'Etapa 3: Cierre y reto',
+      modules: [
+        { id: 301, title: 'Repaso final', duration: '11 min', completed: false },
+        { id: 302, title: 'Evaluación de progreso', duration: '7 min', completed: false },
+        { id: 303, title: 'Siguiente paso', duration: '6 min', completed: false }
+      ]
+    }
+  ];
+
+  const totalLessons = stages.reduce((acc, stage) => acc + stage.modules.length, 0);
+
+  return {
+    progress: 0,
+    completedLessons: 0,
+    totalLessons,
+    stages
+  };
+};
+
+const buildBillingErrors = (form: BillingFormData) => {
+  const errors: Record<string, string> = {};
+
+  const requiredFields: Array<keyof BillingFormData> = [
+    'firstName', 'lastName', 'email', 'phone', 'cardNumber', 'cardName', 'expiry', 'cvv', 'dni', 'address', 'city', 'postalCode'
+  ];
+
+  requiredFields.forEach(field => {
+    if (!form[field].trim()) {
+      errors[field] = 'Este campo es obligatorio.';
+    }
+  });
+
+  if (form.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+    errors.email = 'Ingresa un correo electrónico válido.';
+  }
+
+  if (form.phone.trim() && !/^\d{9}$/.test(form.phone)) {
+    errors.phone = 'El teléfono debe tener exactamente 9 dígitos.';
+  }
+
+  if (form.cardNumber.trim() && !/^\d{16}$/.test(form.cardNumber)) {
+    errors.cardNumber = 'La tarjeta debe tener exactamente 16 dígitos.';
+  }
+
+  if (form.cardName.trim() && !/^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$/.test(form.cardName)) {
+    errors.cardName = 'El nombre debe contener solo letras y espacios.';
+  }
+
+  if (form.expiry.trim()) {
+    const match = form.expiry.match(/^(\d{2})\/(\d{2})$/);
+    if (!match) {
+      errors.expiry = 'Usa el formato MM/AA.';
+    } else {
+      const month = Number(match[1]);
+      if (month < 1 || month > 12) {
+        errors.expiry = 'El mes debe estar entre 01 y 12.';
+      }
+    }
+  }
+
+  if (form.cvv.trim() && !/^\d{3,4}$/.test(form.cvv)) {
+    errors.cvv = 'El CVV debe tener 3 o 4 dígitos.';
+  }
+
+  if (form.dni.trim() && !/^\d{8}$/.test(form.dni)) {
+    errors.dni = 'El DNI debe tener exactamente 8 dígitos.';
+  }
+
+  return errors;
+};
 
 /* ══════════════════════════════════ */
 export default function App() {
@@ -15,69 +139,54 @@ export default function App() {
   const [showEnterprise,   setShowEnterprise]    = useState(false);
   const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
   const [enrolledCourse, setEnrolledCourse] = useState<number | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [authForm, setAuthForm] = useState({ name: '', email: '', password: '' });
+  const [authError, setAuthError] = useState('');
+  const [userName, setUserName] = useState('Estudiante');
+  const [pendingCourseId, setPendingCourseId] = useState<number | null>(null);
+  const [pendingPlanCourseId, setPendingPlanCourseId] = useState<number | null>(null);
+  const [showPlanModal, setShowPlanModal] = useState(false);
+  const [selectedPlanId, setSelectedPlanId] = useState<string>(memberships[1].id);
+  const [billingForm, setBillingForm] = useState<BillingFormData>({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    cardNumber: '',
+    cardName: '',
+    expiry: '',
+    cvv: '',
+    dni: '',
+    address: '',
+    city: '',
+    postalCode: ''
+  });
+  const [billingErrors, setBillingErrors] = useState<Record<string, string>>({
+    firstName: 'Este campo es obligatorio.',
+    lastName: 'Este campo es obligatorio.',
+    email: 'Este campo es obligatorio.',
+    phone: 'Este campo es obligatorio.',
+    cardNumber: 'Este campo es obligatorio.',
+    cardName: 'Este campo es obligatorio.',
+    expiry: 'Este campo es obligatorio.',
+    cvv: 'Este campo es obligatorio.',
+    dni: 'Este campo es obligatorio.',
+    address: 'Este campo es obligatorio.',
+    city: 'Este campo es obligatorio.',
+    postalCode: 'Este campo es obligatorio.'
+  });
+  const [billingStep, setBillingStep] = useState(false);
+  const [savedUsers, setSavedUsers] = useState<{name:string; email:string; password:string}[]>([]);
+  const [courseProgress, setCourseProgress] = useState<Record<number, CourseEnrollment>>({});
+  const [paymentSuccess, setPaymentSuccess] = useState<{ invoiceNumber:string; amount:string; date:string; courseTitle:string } | null>(null);
 
-  
-
-  const selectedCourse = useMemo(() => {
-    const reactCourseContent = {
-  stages: [
-    {
-      title: 'Etapa 1: Introducción a React',
-      progress: 0,
-      modules: [
-        '¿Qué es React?',
-        'Instalación de Node.js',
-        'Instalación de VS Code',
-        'Creación del primer proyecto con Vite',
-        'Estructura de carpetas'
-      ]
-    },
-    {
-      title: 'Etapa 2: Componentes',
-      progress: 0,
-      modules: [
-        'Componentes funcionales',
-        'JSX',
-        'Props',
-        'Eventos',
-        'Renderizado dinámico'
-      ]
-    },
-    {
-      title: 'Etapa 3: Hooks',
-      progress: 0,
-      modules: [
-        'useState',
-        'useEffect',
-        'useMemo',
-        'useRef',
-        'Custom Hooks'
-      ]
-    },
-    {
-      title: 'Etapa 4: Consumo de APIs',
-      progress: 0,
-      modules: [
-        'Fetch API',
-        'Async / Await',
-        'Manejo de errores',
-        'CRUD con API REST'
-      ]
-    },
-    {
-      title: 'Etapa 5: Proyecto Final',
-      progress: 0,
-      modules: [
-        'Dashboard React',
-        'Autenticación',
-        'Despliegue en Vercel',
-        'Entrega del proyecto'
-      ]
-    }
-  ]
-};
-    return allCourses.find(c => c.id === selectedCourseId) || null;
-  }, [selectedCourseId]);
+  const selectedCourse = useMemo(() => allCourses.find(c => c.id === selectedCourseId) || null, [selectedCourseId]);
+  const currentEnrollment = selectedCourse ? courseProgress[selectedCourse.id] : undefined;
+  const completionPercentage = currentEnrollment?.progress ?? 0;
+  const completedLessonsCount = currentEnrollment?.completedLessons ?? 0;
+  const totalLessonsCount = currentEnrollment?.totalLessons ?? 0;
 
   const filteredCourses = useMemo(() =>
     allCourses.filter(c => {
@@ -92,6 +201,26 @@ export default function App() {
   );
 
   const featuredCourses = allCourses.filter(c => c.featured);
+  const isBillingFormValid = useMemo(() => {
+    const hasNoErrors = Object.values(billingErrors).every(error => !error);
+    const hasAllValues = Object.values(billingForm).every(value => value.trim() !== '');
+    return hasNoErrors && hasAllValues;
+  }, [billingErrors, billingForm]);
+
+  useEffect(() => {
+    try {
+      const storedUsers = localStorage.getItem('learnix-users');
+      if (storedUsers) {
+        setSavedUsers(JSON.parse(storedUsers));
+      }
+    } catch {
+      // Ignorar si el almacenamiento no está disponible.
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('learnix-users', JSON.stringify(savedUsers));
+  }, [savedUsers]);
 
   const resetHome = () => {
     setShowCourses(false);
@@ -108,26 +237,154 @@ export default function App() {
   const handleSearch = () => setShowCourses(true);
   const handleKeyPress = (e: React.KeyboardEvent) => { if (e.key === 'Enter') handleSearch(); };
 
-    const reactCourseContent = {
-  stages: [
-    {
-      title: 'Etapa 1: Introducción a React',
-      modules: [
-        '¿Qué es React?',
-        'Instalación de Node.js',
-        'Instalación de VS Code'
-      ]
-    },
-    {
-      title: 'Etapa 2: Componentes',
-      modules: [
-        'JSX',
-        'Props',
-        'Eventos'
-      ]
+  const enrollInCourse = (courseId: number) => {
+    setEnrolledCourse(courseId);
+    setSelectedCourseId(courseId);
+    setCourseProgress(prev => ({ ...prev, [courseId]: buildCourseProgress() }));
+  };
+
+  const handleEnrollClick = (courseId: number) => {
+    if (!isAuthenticated) {
+      setPendingCourseId(courseId);
+      setAuthMode('login');
+      setShowAuthModal(true);
+      return;
     }
-  ]
-};
+
+    setPendingPlanCourseId(courseId);
+    setShowPlanModal(true);
+  };
+
+  const handleAuthSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!authForm.email.trim() || !authForm.password.trim()) {
+      setAuthError('Ingresa un correo y una contraseña válidos.');
+      return;
+    }
+
+    if (authMode === 'register' && !authForm.name.trim()) {
+      setAuthError('Ingresa tu nombre para crear la cuenta.');
+      return;
+    }
+
+    const normalizedEmail = authForm.email.trim().toLowerCase();
+    const displayName = authMode === 'register' ? authForm.name.trim() : authForm.email.split('@')[0];
+
+    if (authMode === 'register') {
+      const exists = savedUsers.some(user => user.email.toLowerCase() === normalizedEmail);
+      if (exists) {
+        setAuthError('Ya existe una cuenta con ese correo.');
+        return;
+      }
+
+      setSavedUsers(prev => [...prev, { name: authForm.name.trim(), email: normalizedEmail, password: authForm.password }]);
+    } else {
+      const foundUser = savedUsers.find(user => user.email.toLowerCase() === normalizedEmail && user.password === authForm.password);
+      if (!foundUser) {
+        setAuthError('Credenciales inválidas. Crea una cuenta primero.');
+        return;
+      }
+      setUserName(foundUser.name);
+    }
+
+    setUserName(displayName);
+    setIsAuthenticated(true);
+    setAuthError('');
+    setShowAuthModal(false);
+    setAuthForm({ name: '', email: '', password: '' });
+
+    if (pendingCourseId) {
+      const courseToEnroll = pendingCourseId;
+      setPendingCourseId(null);
+      setPendingPlanCourseId(courseToEnroll);
+      setShowPlanModal(true);
+    }
+  };
+
+  const confirmPlanSelection = () => {
+    if (!pendingPlanCourseId) return;
+
+    setShowPlanModal(false);
+    setBillingStep(true);
+  };
+
+  const updateBillingField = (field: keyof BillingFormData, value: string) => {
+    let nextValue = value;
+
+    if (['cardNumber', 'cvv', 'phone', 'dni', 'postalCode'].includes(field)) {
+      nextValue = value.replace(/\D/g, '');
+    }
+
+    if (field === 'cardName') {
+      nextValue = value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ ]/g, '');
+    }
+
+    setBillingForm(prev => {
+      const nextForm = { ...prev, [field]: nextValue };
+      setBillingErrors(buildBillingErrors(nextForm));
+      return nextForm;
+    });
+  };
+
+  const handleBillingSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!pendingPlanCourseId || !selectedCourse) return;
+
+    const nextErrors = buildBillingErrors(billingForm);
+    setBillingErrors(nextErrors);
+
+    if (Object.keys(nextErrors).length > 0) {
+      return;
+    }
+
+    const selectedPlan = memberships.find(plan => plan.id === selectedPlanId);
+    const invoiceNumber = `FAC-${Date.now().toString().slice(-6)}`;
+    const amount = selectedPlan?.price || 'Gratis';
+
+    setPaymentSuccess({
+      invoiceNumber,
+      amount,
+      date: new Date().toLocaleDateString('es-ES'),
+      courseTitle: selectedCourse.title
+    });
+    setBillingStep(false);
+    enrollInCourse(pendingPlanCourseId);
+    setPendingPlanCourseId(null);
+  };
+
+  const toggleLessonCompletion = (lessonId: number) => {
+    if (!selectedCourse) return;
+
+    setCourseProgress(prev => {
+      const current = prev[selectedCourse.id];
+      if (!current) return prev;
+
+      const nextStages = current.stages.map(stage => ({
+        ...stage,
+        modules: stage.modules.map(module => (
+          module.id === lessonId ? { ...module, completed: !module.completed } : module
+        ))
+      }));
+
+      const completedLessons = nextStages.reduce(
+        (acc, stage) => acc + stage.modules.filter(module => module.completed).length,
+        0
+      );
+      const progress = Math.round((completedLessons / current.totalLessons) * 100);
+
+      return {
+        ...prev,
+        [selectedCourse.id]: {
+          ...current,
+          stages: nextStages,
+          completedLessons,
+          progress
+        }
+      };
+    });
+  };
+
   return (
     <div className="lx-app">
       {/* Background */}
@@ -160,8 +417,24 @@ export default function App() {
           </ul>
 
           <div className="lx-nav-ctas">
-            <button className="lx-btn lx-btn-ghost">Iniciar sesión</button>
-            <button className="lx-btn lx-btn-primary">Comenzar gratis</button>
+            <button
+              className="lx-btn lx-btn-ghost"
+              onClick={() => {
+                setAuthMode('login');
+                setShowAuthModal(true);
+              }}
+            >
+              {isAuthenticated ? `Hola, ${userName}` : 'Iniciar sesión'}
+            </button>
+            <button
+              className="lx-btn lx-btn-primary"
+              onClick={() => {
+                setAuthMode('register');
+                setShowAuthModal(true);
+              }}
+            >
+              {isAuthenticated ? 'Mi progreso' : 'Comenzar gratis'}
+            </button>
           </div>
         </div>
       </nav>
@@ -170,9 +443,19 @@ export default function App() {
       <div className="lx-content">
         {/* ── Course Detail Page ── */}
         
+         {paymentSuccess && (
+          <div className="lx-success-banner">
+            <div>
+              <strong>Inscripción realizada correctamente.</strong>
+              <p>Factura {paymentSuccess.invoiceNumber} para {paymentSuccess.courseTitle} · {paymentSuccess.amount} · {paymentSuccess.date}</p>
+            </div>
+            <button onClick={() => setPaymentSuccess(null)}>×</button>
+          </div>
+        )}
+
          {enrolledCourse &&
    selectedCourse &&
-   selectedCourse.title === 'React desde Cero' ? (
+   currentEnrollment ? (
     <section className="lx-course-progress">
 
   <div className="lx-course-layout">
@@ -181,19 +464,22 @@ export default function App() {
     <div className="lx-course-main">
 
       <div className="lx-course-banner">
-        <h1>React desde Cero</h1>
+        <div className="lx-banner-top">
+          <h1>{selectedCourse.title}</h1>
+          <span className="lx-course-pill">Inscrito • {completionPercentage}%</span>
+        </div>
 
         <div className="lx-progress-wrapper">
           <div
             className="lx-progress-fill"
-            style={{ width: '35%' }}
+            style={{ width: `${completionPercentage}%` }}
           />
         </div>
 
-        <span>8 de 23 lecciones completadas</span>
+        <span>{completedLessonsCount} de {totalLessonsCount} lecciones completadas</span>
       </div>
 
-      {reactCourseContent.stages.map((stage, index) => (
+      {currentEnrollment.stages.map((stage, index) => (
 
         <div key={index} className="lx-stage-card">
 
@@ -204,22 +490,22 @@ export default function App() {
 
           <ul className="lx-stage-modules">
 
-            {stage.modules.map((module, idx) => (
+            {stage.modules.map((module) => (
 
-              <li key={idx} className="lx-lesson-card">
+              <li key={module.id} className={`lx-lesson-card${module.completed ? ' completed' : ''}`}>
 
                 <div className="lx-lesson-icon">
-                  ▶️
+                  {module.completed ? '✅' : '▶️'}
                 </div>
 
                 <div className="lx-lesson-info">
-                  <h4>{module}</h4>
-                  <p>Video • 12 min</p>
+                  <h4>{module.title}</h4>
+                  <p>Video • {module.duration}</p>
                 </div>
 
-                <span className="lx-lesson-status">
-                  Pendiente
-                </span>
+                <button className={`lx-lesson-btn${module.completed ? ' done' : ''}`} onClick={() => toggleLessonCompletion(module.id)}>
+                  {module.completed ? 'Completada' : 'Marcar como hecha'}
+                </button>
 
               </li>
 
@@ -238,18 +524,19 @@ export default function App() {
 
   <div className="lx-sidebar-widget">
     <h3>📊  Tu Progreso</h3>
-    <p>35% completado</p>
+    <p>{completionPercentage}% completado</p>
+    <p>{completedLessonsCount} de {totalLessonsCount} lecciones cerradas</p>
   </div>
 
   <div className="lx-sidebar-widget">
     <h3>🎓 Certificado</h3>
-    <p>Disponible al completar el 100%</p>
+    <p>{completionPercentage === 100 ? 'Listo para descargar' : 'Disponible al completar el 100%'}</p>
   </div>
 
   <div className="lx-sidebar-widget">
     <h3>📖 Contenido</h3>
-    <p>5 etapas</p>
-    <p>23 lecciones</p>
+    <p>{currentEnrollment.stages.length} etapas</p>
+    <p>{totalLessonsCount} lecciones</p>
   </div>
 
   <div className="lx-sidebar-widget">
@@ -316,9 +603,9 @@ export default function App() {
               <div className="lx-detail-actions">
                 <button
   className="lx-enroll-btn"
-  onClick={() => setEnrolledCourse(selectedCourse.id)}
+  onClick={() => handleEnrollClick(selectedCourse.id)}
 >
-  Inscribirme ahora
+  {isAuthenticated && enrolledCourse === selectedCourse.id ? 'Continuar curso' : 'Inscribirme y pagar'}
 </button>
                 <button className="lx-wishlist-btn" title="Agregar a favoritos">
                   <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
@@ -752,6 +1039,230 @@ export default function App() {
           </section>
         )}
       </div>
+
+      {showPlanModal && (
+        <div className="lx-auth-modal-backdrop" onClick={() => setShowPlanModal(false)}>
+          <div className="lx-auth-modal lx-plan-modal" onClick={e => e.stopPropagation()}>
+            <div className="lx-auth-modal-header">
+              <h3>Elige tu plan</h3>
+              <button className="lx-auth-close" onClick={() => setShowPlanModal(false)}>×</button>
+            </div>
+
+            <div className="lx-plan-options">
+              {memberships.map(plan => (
+                <button
+                  key={plan.id}
+                  className={`lx-plan-option${selectedPlanId === plan.id ? ' active' : ''}`}
+                  onClick={() => setSelectedPlanId(plan.id)}
+                >
+                  <div className="lx-plan-option-top">
+                    <strong>{plan.name}</strong>
+                    <span>{plan.price}{plan.period}</span>
+                  </div>
+                  <p>{plan.description}</p>
+                </button>
+              ))}
+            </div>
+
+            <button className="lx-btn lx-btn-primary lx-btn-full" onClick={confirmPlanSelection}>
+              Continuar con datos de facturación
+            </button>
+          </div>
+        </div>
+      )}
+
+      {billingStep && (
+        <div className="lx-auth-modal-backdrop" onClick={() => setBillingStep(false)}>
+          <div className="lx-auth-modal lx-plan-modal" onClick={e => e.stopPropagation()}>
+            <div className="lx-auth-modal-header">
+              <h3>Datos de pago y factura</h3>
+              <button className="lx-auth-close" onClick={() => setBillingStep(false)}>×</button>
+            </div>
+
+            <form className="lx-auth-form lx-billing-form" onSubmit={handleBillingSubmit}>
+              <div className="lx-billing-row">
+                <div className="lx-input-group">
+                  <input
+                    type="text"
+                    placeholder="Nombres"
+                    value={billingForm.firstName}
+                    onChange={e => updateBillingField('firstName', e.target.value)}
+                  />
+                  {billingErrors.firstName && <span className="lx-error-text">{billingErrors.firstName}</span>}
+                </div>
+                <div className="lx-input-group">
+                  <input
+                    type="text"
+                    placeholder="Apellidos"
+                    value={billingForm.lastName}
+                    onChange={e => updateBillingField('lastName', e.target.value)}
+                  />
+                  {billingErrors.lastName && <span className="lx-error-text">{billingErrors.lastName}</span>}
+                </div>
+              </div>
+              <div className="lx-billing-row">
+                <div className="lx-input-group">
+                  <input
+                    type="email"
+                    placeholder="Correo electrónico"
+                    value={billingForm.email}
+                    onChange={e => updateBillingField('email', e.target.value)}
+                  />
+                  {billingErrors.email && <span className="lx-error-text">{billingErrors.email}</span>}
+                </div>
+                <div className="lx-input-group">
+                  <input
+                    type="text"
+                    placeholder="Teléfono"
+                    value={billingForm.phone}
+                    onChange={e => updateBillingField('phone', e.target.value)}
+                    maxLength={9}
+                  />
+                  {billingErrors.phone && <span className="lx-error-text">{billingErrors.phone}</span>}
+                </div>
+              </div>
+              <div className="lx-input-group">
+                <input
+                  type="text"
+                  placeholder="Número de tarjeta"
+                  value={billingForm.cardNumber}
+                  onChange={e => updateBillingField('cardNumber', e.target.value)}
+                  maxLength={16}
+                />
+                {billingErrors.cardNumber && <span className="lx-error-text">{billingErrors.cardNumber}</span>}
+              </div>
+              <div className="lx-input-group">
+                <input
+                  type="text"
+                  placeholder="Nombre en la tarjeta"
+                  value={billingForm.cardName}
+                  onChange={e => updateBillingField('cardName', e.target.value)}
+                />
+                {billingErrors.cardName && <span className="lx-error-text">{billingErrors.cardName}</span>}
+              </div>
+              <div className="lx-billing-row">
+                <div className="lx-input-group">
+                  <input
+                    type="text"
+                    placeholder="MM/AA"
+                    value={billingForm.expiry}
+                    onChange={e => updateBillingField('expiry', e.target.value)}
+                    maxLength={5}
+                  />
+                  {billingErrors.expiry && <span className="lx-error-text">{billingErrors.expiry}</span>}
+                </div>
+                <div className="lx-input-group">
+                  <input
+                    type="text"
+                    placeholder="CVV"
+                    value={billingForm.cvv}
+                    onChange={e => updateBillingField('cvv', e.target.value)}
+                    maxLength={4}
+                  />
+                  {billingErrors.cvv && <span className="lx-error-text">{billingErrors.cvv}</span>}
+                </div>
+              </div>
+              <div className="lx-billing-row">
+                <div className="lx-input-group">
+                  <input
+                    type="text"
+                    placeholder="DNI"
+                    value={billingForm.dni}
+                    onChange={e => updateBillingField('dni', e.target.value)}
+                    maxLength={8}
+                  />
+                  {billingErrors.dni && <span className="lx-error-text">{billingErrors.dni}</span>}
+                </div>
+                <div className="lx-input-group">
+                  <input
+                    type="text"
+                    placeholder="Código postal"
+                    value={billingForm.postalCode}
+                    onChange={e => updateBillingField('postalCode', e.target.value)}
+                  />
+                  {billingErrors.postalCode && <span className="lx-error-text">{billingErrors.postalCode}</span>}
+                </div>
+              </div>
+              <div className="lx-input-group">
+                <input
+                  type="text"
+                  placeholder="Dirección"
+                  value={billingForm.address}
+                  onChange={e => updateBillingField('address', e.target.value)}
+                />
+                {billingErrors.address && <span className="lx-error-text">{billingErrors.address}</span>}
+              </div>
+              <div className="lx-input-group">
+                <input
+                  type="text"
+                  placeholder="Ciudad"
+                  value={billingForm.city}
+                  onChange={e => updateBillingField('city', e.target.value)}
+                />
+                {billingErrors.city && <span className="lx-error-text">{billingErrors.city}</span>}
+              </div>
+              <button className="lx-btn lx-btn-primary lx-btn-full" type="submit" disabled={!isBillingFormValid}>
+                Pagar y generar factura
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showAuthModal && (
+        <div className="lx-auth-modal-backdrop" onClick={() => setShowAuthModal(false)}>
+          <div className="lx-auth-modal" onClick={e => e.stopPropagation()}>
+            <div className="lx-auth-modal-header">
+              <h3>{authMode === 'login' ? 'Inicia sesión' : 'Crea tu cuenta'}</h3>
+              <button className="lx-auth-close" onClick={() => setShowAuthModal(false)}>×</button>
+            </div>
+
+            <p className="lx-auth-subtitle">
+              {authMode === 'login'
+                ? 'Accede para inscribirte y ver tu progreso en tiempo real.'
+                : 'Regístrate para guardar tu avance y continuar desde donde te quedaste.'}
+            </p>
+
+            <form className="lx-auth-form" onSubmit={handleAuthSubmit}>
+              {authMode === 'register' && (
+                <input
+                  type="text"
+                  placeholder="Tu nombre"
+                  value={authForm.name}
+                  onChange={e => setAuthForm({ ...authForm, name: e.target.value })}
+                />
+              )}
+
+              <input
+                type="email"
+                placeholder="Correo electrónico"
+                value={authForm.email}
+                onChange={e => setAuthForm({ ...authForm, email: e.target.value })}
+              />
+
+              <input
+                type="password"
+                placeholder="Contraseña"
+                value={authForm.password}
+                onChange={e => setAuthForm({ ...authForm, password: e.target.value })}
+              />
+
+              {authError && <p className="lx-auth-error">{authError}</p>}
+
+              <button className="lx-btn lx-btn-primary lx-btn-full" type="submit">
+                {authMode === 'login' ? 'Entrar' : 'Crear cuenta'}
+              </button>
+            </form>
+
+            <div className="lx-auth-switch">
+              <span>{authMode === 'login' ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?'}</span>
+              <button onClick={() => setAuthMode(authMode === 'login' ? 'register' : 'login')}>
+                {authMode === 'login' ? 'Crear cuenta' : 'Iniciar sesión'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* WhatsApp FAB */}
       <a href="https://wa.me/" className="lx-whatsapp" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
