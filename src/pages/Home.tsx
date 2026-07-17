@@ -504,7 +504,7 @@ export default function App() {
 
             {filteredCourses.length > 0 ? (
               <div className="lx-catalog-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
-                {filteredCourses.map((c: typeof allCourses[0]) => <CourseCard key={c.id} course={c} onClick={() => setSelectedCourseInfo(c)} />)}
+                {filteredCourses.map((c: typeof allCourses[0]) => <CourseCard key={c.id} course={c} onClick={() => navigate(`/courses/${slugifyCourseTitle(c.title)}`)} />)}
               </div>
             ) : (
               <div style={{ textAlign: 'center', padding: '4rem', background: '#1e293b', borderRadius: '16px', border: '1px dashed #334155', maxWidth: '600px', margin: '0 auto' }}>
