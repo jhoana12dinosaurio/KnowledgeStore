@@ -172,14 +172,42 @@ const checkEnrollment = async (req, res, next) => {
   try {
     const { courseId } = req.params;
     const result = await query(
-      `SELECT id, progress_pct, status FROM enrollments
-       WHERE user_id = $1 AND course_id = $2`,
+      `SELECT
+         e.id,
+         e.progress_pct,
+         e.status,
+         COALESCE(
+           json_agg(
+             json_build_object(
+               'lesson_id', lp.lesson_id,
+               'completed', lp.completed,
+               'watch_pct', lp.watch_pct
+             )
+             ORDER BY l.position
+           ) FILTER (WHERE lp.lesson_id IS NOT NULL),
+           '[]'::json
+         ) AS lesson_progress
+       FROM enrollments e
+       LEFT JOIN lessons l ON l.course_id = e.course_id
+       LEFT JOIN lesson_progress lp
+         ON lp.user_id = e.user_id AND lp.lesson_id = l.id
+       WHERE e.user_id = $1 AND e.course_id = $2
+       GROUP BY e.id, e.progress_pct, e.status`,
       [req.user.id, courseId]
     );
 
+    const enrollment = result.rows[0] || null;
+
     res.json({
-      enrolled:    result.rows.length > 0,
-      enrollment:  result.rows[0] || null,
+      enrolled: enrollment !== null,
+      enrollment: enrollment
+        ? {
+            id: enrollment.id,
+            progress_pct: enrollment.progress_pct,
+            status: enrollment.status,
+          }
+        : null,
+      lesson_progress: enrollment?.lesson_progress || [],
     });
   } catch (err) {
     next(err);

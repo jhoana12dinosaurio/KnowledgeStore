@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import '../App.css';
-import { useNavigate } from 'react-router-dom';
-import { getJson } from '../services/api';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { getJson, getToken } from '../services/api';
 import { logoutUser } from '../services/authService';
 
-const slugify = (title: string) =>
+const slugifyCourseTitle = (title: string) =>
   title
     .toLowerCase()
     .normalize('NFD')
@@ -12,74 +12,6 @@ const slugify = (title: string) =>
     .replace(/\s+/g, '-')
     .replace(/[^a-z0-9-]+/g, '-')
     .replace(/^-+|-+$/g, '');
-
-type CourseCardData = {
-  id: string | number;
-  title: string;
-  slug?: string;
-  category: string;
-  level: string;
-  duration: string;
-  rating: number;
-  students: number;
-  instructor: string;
-  image: string;
-  price: string;
-  featured?: boolean;
-};
-
-type MembershipCardData = {
-  id: string;
-  name: string;
-  price: string;
-  period: string;
-  description: string;
-  features: string[];
-  buttonText: string;
-  highlighted: boolean;
-  color: string;
-};
-
-type AlliedCompanyData = {
-  initial: string;
-  name: string;
-  sector: string;
-  description: string;
-  benefits: string[];
-};
-
-type ApiCourse = {
-  id: string;
-  title: string;
-  slug?: string;
-  category?: string;
-  level?: string;
-  duration_hrs?: number | string;
-  rating?: number | string;
-  total_students?: number | string;
-  instructor?: string;
-  instructor_name?: string;
-  price?: number | string;
-  featured?: boolean;
-};
-
-type ApiCategory = { name: string };
-type ApiPlan = {
-  id: number;
-  name: string;
-  plan_type: 'basic' | 'pro' | 'enterprise';
-  price_monthly: number | string;
-  description?: string;
-  features?: string[];
-};
-
-type ApiCompany = {
-  id: string;
-  name: string;
-  industry?: string | null;
-  description?: string | null;
-  employees?: number | null;
-};
 
 const hasSession = () => {
   const token = localStorage.getItem('token');
@@ -235,6 +167,7 @@ const AlliedCompanyCard = ({ company, onViewMore }: { company: typeof alliedComp
 export default function App() {
 
   const navigate = useNavigate();
+  const location = useLocation();
   const [isLoggedIn, setIsLoggedIn] = useState(hasSession);
 
   const [searchTerm,       setSearchTerm]       = useState('');
@@ -259,6 +192,7 @@ export default function App() {
 
   // ESTADOS PARA MODALES DE DETALLE
   const [selectedCourseInfo, setSelectedCourseInfo]   = useState<typeof allCourses[0] | null>(null);
+  const [selectedCourseEnrolled, setSelectedCourseEnrolled] = useState(false);
   const [selectedCompanyInfo, setSelectedCompanyInfo] = useState<typeof alliedCompanies[0] | null>(null);
   const [selectedBlogPost, setSelectedBlogPost]       = useState<typeof blogPosts[0] | null>(null);
 
@@ -268,6 +202,40 @@ export default function App() {
     { user: 'Ana Dev', text: '¿Esto aplica también para los proyectos de Data?' },
     { user: 'Carlos M.', text: 'El código queda mucho más limpio así.' }
   ]);
+
+  useEffect(() => {
+    const loadEnrollmentStatus = async () => {
+      if (!selectedCourseInfo || !getToken()) {
+        setSelectedCourseEnrolled(false);
+        return;
+      }
+
+      try {
+        const enrollmentResponse = await getJson<{ enrollments: Array<{ title: string; slug?: string }> }>('/enrollments/my');
+        const enrollmentSlug = slugifyCourseTitle(selectedCourseInfo.title);
+        const isAlreadyEnrolled = enrollmentResponse.enrollments.some((course) =>
+          course.slug === enrollmentSlug || course.title === selectedCourseInfo.title
+        );
+
+        setSelectedCourseEnrolled(isAlreadyEnrolled);
+      } catch {
+        setSelectedCourseEnrolled(false);
+      }
+    };
+
+    void loadEnrollmentStatus();
+  }, [selectedCourseInfo]);
+
+  useEffect(() => {
+    const shouldReturnToCatalog = (location.state as { returnToCatalog?: boolean } | null)?.returnToCatalog;
+
+    if (shouldReturnToCatalog) {
+      setShowCourses(true);
+      setShowEnterprise(false);
+      setShowLive(false);
+      setShowBlog(false);
+    }
+  }, [location.state]);
 
   const filteredCourses = useMemo(() =>
     allCourses.filter(c => {
@@ -536,7 +504,7 @@ export default function App() {
 
             {filteredCourses.length > 0 ? (
               <div className="lx-catalog-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
-                {filteredCourses.map(c => <CourseCard key={c.id} course={c} onClick={() => setSelectedCourseInfo(c)} />)}
+                {filteredCourses.map((c: typeof allCourses[0]) => <CourseCard key={c.id} course={c} onClick={() => setSelectedCourseInfo(c)} />)}
               </div>
             ) : (
               <div style={{ textAlign: 'center', padding: '4rem', background: '#1e293b', borderRadius: '16px', border: '1px dashed #334155', maxWidth: '600px', margin: '0 auto' }}>
@@ -695,8 +663,28 @@ export default function App() {
                   <li>Buenas prácticas de código y optimización de rendimiento.</li>
                   <li>Preparación directa para superar entrevistas técnicas de esta área.</li>
                 </ul>
-                <button style={{ width: '100%', background: '#6366F1', color: 'white', border: 'none', padding: '1rem', borderRadius: '8px', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer' }} onClick={() => { setSelectedCourseInfo(null); scrollToPricing(); }}>
-                  Inscribirme ahora
+                <button
+                  style={{ width: '100%', background: '#6366F1', color: 'white', border: 'none', padding: '1rem', borderRadius: '8px', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer' }}
+                  onClick={() => {
+                    const targetSlug = slugifyCourseTitle(selectedCourseInfo.title);
+
+                    if (selectedCourseEnrolled) {
+                      setSelectedCourseInfo(null);
+                      navigate(`/courses/${targetSlug}`);
+                      return;
+                    }
+
+                    if (selectedCourseInfo.price === 'Gratis') {
+                      setSelectedCourseInfo(null);
+                      navigate(`/courses/${targetSlug}`);
+                      return;
+                    }
+
+                    setSelectedCourseInfo(null);
+                    scrollToPricing();
+                  }}
+                >
+                  {selectedCourseEnrolled ? 'Ver contenido del curso' : 'Inscribirme ahora'}
                 </button>
               </div>
             </div>
